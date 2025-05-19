@@ -1,40 +1,40 @@
 import os
-from typing import List
+import requests
 
-from langchain_core.documents import Document
+# Pfade und Konfiguration
+API_URL = os.getenv("API_URL", "http://localhost:8000")
+API_KEY = os.getenv("API_KEY", "testkey")
+HEADERS = {"X-API-Key": API_KEY}
+INPUT_DIR = os.path.join(os.path.dirname(__file__), "../data/Vorlesungsunterlagen/")
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "../data/Karteikarten/")
+USER_INSTRUCTIONS = "Es gibt keine speziellen Anweisungen vom Nutzer."
 
-from main.chunk import save_index_cards_as_csv, load_docs, jump_through_lists
-from main.ai import graph
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+# Alle PDF-Dateien im Input-Verzeichnis auflisten
+for fname in os.listdir(os.path.abspath(INPUT_DIR)):
+    if not fname.lower().endswith(".pdf"):
+        continue
+    pdf_path = os.path.join(INPUT_DIR, fname)
+    print(f"Verarbeite {fname}...")
 
-docs: List[Document] = load_docs("./data/Vorlesungsunterlagen/")
-user_instructions = """Es gibt keine speziellen Anweisungen vom Nutzer."""
+    with open(pdf_path, "rb") as f:
+        files = {"file": (fname, f, "application/pdf")}
+        data = {"user_instructions": USER_INSTRUCTIONS}
+        response = requests.post(
+            f"{API_URL}/generate",
+            headers=HEADERS,
+            files=files,
+            data=data,
+        )
+    if response.status_code != 200:
+        print(f"Fehler bei der API-Anfrage für {fname}: {response.status_code} - {response.text}")
+        continue
 
-print("Loaded documents:",len(docs))
-for doc in docs:
-    print("Page Count:", len(doc))
-    file_path = doc[0].metadata["file_path"]
-    file_name = os.path.basename(file_path)
-    file_name_as_csv = os.path.splitext(file_name)[0] + ".csv"
-
-    # Verwende die ausgelagerte Funktion mit einem Jump von 5
-    first_pages, target_pages, last_pages = jump_through_lists(
-        [], [], doc, jump=5
-    )
-
-    initial_state = {
-        "last_pages": last_pages,
-        "target_pages": target_pages,
-        "first_pages": first_pages,
-        "user_instructions": user_instructions,
-    }
-
-    # Run the graph with the initial state
-    results = graph.invoke(initial_state, {"recursion_limit": 100})["all_index_cards"]
-
-    # 2. Die bereinigte, flache Liste in eine CSV speichern
-    save_index_cards_as_csv(results, file_name_as_csv, "./data/Karteikarten/")
-
-    print("Results:", results)
+    csv_name = os.path.splitext(fname)[0] + ".csv"
+    out_path = os.path.join(OUTPUT_DIR, csv_name)
+    with open(out_path, "wb") as out_f:
+        out_f.write(response.content)
+    print(f"Erfolgreich gespeichert: {out_path}")
 
 

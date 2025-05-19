@@ -20,3 +20,6 @@ python-dotenv
 fastapi
 python-multipart 
 uvicorn
+
+# API-Client
+requests

@@ -73,7 +73,7 @@ Die App basiert auf folgenden Technologien:
 1. **Anwendung ausführen:**
 
    ```bash
-   python -m main.manuell_execute
+   python -m main.manuell_execution_old
    ```
 
 2. **Karteikarten einsehen:**

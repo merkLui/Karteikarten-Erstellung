@@ -1,6 +1,11 @@
 import os
 import csv
 
+from typing import List
+
+from langchain_core.documents import Document
+
+
 from langchain_community.document_loaders.parsers import LLMImageBlobParser
 from langchain_pymupdf4llm import PyMuPDF4LLMLoader
 
@@ -19,17 +24,15 @@ def chunk_file(file_path):
 
     return loader.load()
 
-def load_docs(path_to_directory):
-    """
-    Load documents from a given directory and chunk them using the chunk_file function.
-    """
-    # List all files in the directory
-    files = os.listdir(path_to_directory)
-    documents = []
-    for file in files:
-        full_path = os.path.join(path_to_directory, file)
-        documents.append(chunk_file(full_path))
-    
+def load_docs(path: str) -> List[Document]:
+    documents: List[Document] = []
+    for root, _, files in os.walk(path):
+        for fname in files:
+            # Nur echte PDF-Dateien lesen, versteckte Dateien überspringen
+            if fname.startswith(".") or not fname.lower().endswith(".pdf"):
+                continue
+            full_path = os.path.join(root, fname)
+            documents.append(chunk_file(full_path))
     return documents
 
 def jump_through_lists(first_list: list, middle_list: list, last_list: list, jump: int):
