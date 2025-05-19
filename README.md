@@ -125,3 +125,18 @@ Die Anwendung benötigt einen Google Generative AI API-Schlüssel.
 
 [Hier Kontaktinformationen einfügen, falls zutreffend]
 
+
+
+
+ausführung api:
+
+export API_KEY="mein-geheimer-key"
+
+uvicorn main.api:app --host 0.0.0.0 --port 8000 --reload
+
+curl http://localhost:8000/health
+
+
+export API_URL="http://localhost:8000"
+export API_KEY="mein-geheimer-key"
+python main/manuell_execute.py
