@@ -1,77 +1,102 @@
+<!-- README komplett überarbeitet -->
 # KI-gestützte Karteikarten-Erstellung
 
+**Automatische Generierung von Frage-Antwort-Karteikarten aus PDF-Dokumenten über eine REST-API mit Web-Interface.**
 
-### Einrichtung
+---
 
-1.  **Projektverzeichnis wechseln:**
+## Features
 
+- Upload von PDFs per HTTP-Endpoint oder über ein integriertes Web-Frontend
+- KI-basierte Umwandlung in Frage-Antwort-Karteikarten mit Quellenangabe und LaTeX-Formeln
+- Ausgabe der Karteikarten als Download im CSV-Format
+- Einfache Authentifizierung via API-Key-Header
+- Bereitstellung von Health-Check und statischen Assets
+
+## Projektstruktur
+
+```
+root/
+├── data/
+│   ├── Vorlesungsunterlagen/   ← Eingabe-PDFs
+│   └── Karteikarten/           ← Ausgabe-CSV-Dateien
+├── main/                       ← Python-Backend (FastAPI)
+│   ├── ai.py
+│   ├── api.py
+│   ├── chunk.py
+│   ├── llm.py
+│   ├── prompt.py
+│   ├── web/                    ← Statisches Web-Frontend (HTML/CSS/JS)
+│   └── ...
+├── requirements.txt            ← Python-Abhängigkeiten
+└── README.md                   ← Projektbeschreibung
+```
+
+## Voraussetzungen
+
+- Python 3.8 oder höher
+- `pip` zum Installieren der Abhängigkeiten
+- (Optional) Virtual Environment
+
+## Einrichtung
+
+1. Repository klonen:
    ```bash
-   cd /pfad/zu/Lern-App
+   git clone <URL> lern-app
+   cd lern-app
    ```
-
-2.  **Virtuelle Umgebung erstellen und aktivieren:**
-
+2. Virtuelle Umgebung anlegen & aktivieren:
    ```bash
    python -m venv .venv
-   source .venv/bin/activate  # Unter Windows: .venv\Scripts\activate
+   source .venv/bin/activate  # Windows: .venv\Scripts\activate
    ```
-
-3.  **Abhängigkeiten installieren:**
-
+3. Abhängigkeiten installieren:
    ```bash
    pip install -r requirements.txt
    ```
-
-## Vorbereitung
-
-1. **Verzeichnisstruktur erstellen:**
-
-   Stelle sicher, dass folgende Verzeichnisse existieren:
+4. Umgebungsvariablen setzen in der .env setzten:
    ```bash
-   mkdir -p ./data/Vorlesungsunterlagen
-   mkdir -p ./data/Karteikarten
+   export AZURE_OPENAI_ENDPOINT="<endpoint>"
+   export AZURE_OPENAI_API_KEY="<key>"
    ```
 
-2. **Konfiguration einrichten:**
+## API starten
 
-   Erstelle eine `.env` Datei im Hauptverzeichnis:
-   ```bash
-   cd ./main
-   touch .env
-   ```
+Setze die FastAPI-Server API:
 
-   Lege folgende Dinge ab:
-   AZURE_OPENAI_ENDPOINT=""
-   AZURE_OPENAI_API_KEY=""
+```bash
+export API_KEY="mein-geheimer-key"
+```
 
-3. **PDF-Dokumente platzieren:**
-
-   Lege deine PDF-Dokumente im Verzeichnis `./data/Vorlesungsunterlagen` ab.
-
-## Verwendung
-
-1. **Anwendung ausführen:**
-
- 1. API KEY festelegen
-   ```bash
-   export API_KEY="mein-geheimer-key"
-   ```
-2. API Starten:
-   ```bash
+Starte den FastAPI-Server mit:
+```bash
 uvicorn main.api:app --host 0.0.0.0 --port 8000 --reload
-   ```
+```
 
-   
- 3. Check ob api gut klappt:
+## Nutzung
 
-    ```bash
-curl http://localhost:8000/health
-   ```
+### Web-Frontend
 
-4. 
+1. Browser öffnen unter `http://localhost:8000/`
+2. API-Key eingeben
+3. PDF auswählen und optional Nutzeranweisungen ergänzen
+4. Klick auf **Generieren** → CSV-Download startet automatisch
 
-ausführung Website:
+### Curl-Beispiel
 
-    ```bash
-uvicorn main.api:app --reload
-   ```
+```bash
+curl -X POST "http://localhost:8000/generate" \
+     -H "X-API-Key: $API_KEY" \
+     -F file=@"./data/Vorlesungsunterlagen/beispiel.pdf" \
+     -F user_instructions="Optionale Hinweise"
+```
+
+Die Antwort ist eine CSV-Datei mit den Karteikarten.
+
+## Deployment
+
+Empfohlen für Testzwecke: Azure App Service oder Functions. Einfache Containerisierung per Docker möglich.
+
+## Lizenz & Haftungsausschluss
+
+Nur zu Demonstrationszwecken. Nutzung auf eigenes Risiko.
