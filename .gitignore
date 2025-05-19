@@ -1,0 +1,27 @@
+
+# Ignore data directory
+data/
+
+# Common system files
+.DS_Store
+Thumbs.db
+
+# Node.js dependencies
+node_modules/
+npm-debug.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE settings
+.idea/
+.vscode/
+*.swp
+*.swo

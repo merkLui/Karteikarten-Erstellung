@@ -1,0 +1,18 @@
+# Hauptabhängigkeiten
+langchain
+langchain-core
+langchain-community
+langchain_openai
+langgraph
+langchain-pymupdf4llm
+
+# PDF-Verarbeitung
+PyMuPDF
+
+# Mathematische Berechnungen
+numexpr
+
+# Bildverarbeitung (für Bildanalyse in PDFs)
+pillow
+
+python-dotenv
