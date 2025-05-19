@@ -14,5 +14,9 @@ numexpr
 
 # Bildverarbeitung (für Bildanalyse in PDFs)
 pillow
-
 python-dotenv
+
+# API
+fastapi
+python-multipart 
+uvicorn
