@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
 from fastapi.security.api_key import APIKeyHeader, APIKey
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles  # neu importieren
 import os
 import uuid
 import tempfile
@@ -57,3 +58,8 @@ async def generate(
 @app.get("/health", summary="Health-Check der API")
 def health_check():
     return {"status": "ok"}
+
+# Statische Website bereitstellen
+import os  # already vorhanden
+web_dir = os.path.join(os.path.dirname(__file__), "web")
+app.mount("/", StaticFiles(directory=web_dir, html=True), name="static")
