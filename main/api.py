@@ -44,16 +44,39 @@ async def generate(
     # Dokument in Seiten und Bilder aufteilen
     first_pages = []
     target_pages = []
-    last_pages = chunk_file(tmp_pdf.name)
+    print("Dokument wird eingelesen...")
+    try:
+        last_pages = chunk_file(tmp_pdf.name)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Fehler beim Einlesen des Dokuments: {e}"
+        )
+    print("Dokument eingelesen und in Seiten aufgeteilt.")
 
     all_index_cards = []
 
     while len(last_pages) > 0:
-        # Initiale Logik
+        print(f"{len(first_pages)}/{len(target_pages) + len(first_pages) + len(last_pages)} Seiten verarbeitet.")
+
         first_pages, target_pages, last_pages = jump_through_lists([], [], last_pages, jump=5)
-        initial_state = {"first_pages": first_pages, "target_pages": target_pages, "last_pages": last_pages, "user_instructions": user_instructions, "all_index_cards": all_index_cards}
-        # Graph ausführen
-        result = graph.invoke(initial_state, {"recursion_limit": 100})
+        initial_state = {
+            "first_pages": first_pages,
+            "target_pages": target_pages,
+            "last_pages": last_pages,
+            "user_instructions": user_instructions,
+            "all_index_cards": all_index_cards
+        }
+
+        # Graph ausführen mit Error-Handling
+        try:
+            result = graph.invoke(initial_state, {"recursion_limit": 100})
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Fehler beim LLM-Aufruf: {e}"
+            )
+
         all_index_cards = result.get("all_index_cards", [])
         first_pages = result.get("first_pages", [])
         target_pages = result.get("target_pages", [])
