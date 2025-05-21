@@ -1,4 +1,5 @@
-import os
+"""Modul zur Steuerung des KI-Graphen für die Erstellung von Frage-Antwort-Karteikarten."""
+
 from typing import List, TypedDict
 
 from langchain_core.documents import Document
@@ -7,13 +8,9 @@ import pydantic
 
 from .prompt import GraphState, sys_prompt_index_card_generator, sys_prompt_supervisor, IndexCard
 from .llm import model
-from .chunk import save_index_cards_as_csv, load_docs, jump_through_lists
 
 def index_card_builder(state: GraphState):
-    """
-    Create a StateGraph object with the State class.
-    Process pages based on jump size at once as target_pages.
-    """
+    """Erstellt Karteikarten aus den Zielseiten und bereitet sie für die Supervisor-Prüfung vor."""
     # Extract current state
     first_pages = state.get("first_pages", [])
     target_pages = state.get("target_pages", [])
@@ -47,6 +44,7 @@ def index_card_builder(state: GraphState):
     }
 
 def index_card_supervisor(state: GraphState):
+    """Überprüft generierte Karteikarten und fügt genehmigte Karten dem Gesamtset hinzu."""
     # Extract current state
     target_pages = state.get("target_pages", [])
     first_pages = state.get("first_pages", [])

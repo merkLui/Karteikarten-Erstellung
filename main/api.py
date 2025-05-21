@@ -1,11 +1,12 @@
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends, Request  # Request importieren
+"""API-Modul zur Generierung von Frage-Antwort-Karteikarten aus PDF-Dateien."""
+
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
 from fastapi.security.api_key import APIKeyHeader, APIKey
 from fastapi.responses import FileResponse, StreamingResponse
-from fastapi.staticfiles import StaticFiles  # neu importieren
+from fastapi.staticfiles import StaticFiles
 import os
 import uuid
 import tempfile
-import json  # neu importieren
 
 from .chunk import chunk_file, jump_through_lists, save_index_cards_as_csv
 from .ai import graph
@@ -32,34 +33,45 @@ async def generate(
     user_instructions: str = Form("", description="Zusätzliche Nutzeranweisungen"),
     api_key: APIKey = Depends(get_api_key)
 ):
+    """Generiert Karteikarten als CSV-Datei aus einem hochgeladenen PDF-Dokument.
+
+    Args:
+        file: PDF-Datei zum Verarbeiten.
+        user_instructions: Zusätzliche Anweisungen für die KI.
+        api_key: API-Key zur Authentifizierung.
+
+    Returns:
+        CSV-Datei mit den generierten Karteikarten.
+    """
     # Dateityp prüfen
     if file.content_type != "application/pdf":
         raise HTTPException(status_code=400, detail="Ungültiger Dateityp, bitte PDF hochladen.")
-    # Temporäre Datei
+    # Temporäre Datei anlegen
     suffix = os.path.splitext(file.filename)[1]
     tmp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
     data = await file.read()
     tmp_pdf.write(data)
     tmp_pdf.close()
+
     # Dokument in Seiten und Bilder aufteilen
-    first_pages = []
-    target_pages = []
-    print("Dokument wird eingelesen...")
+    print("Lese und verarbeite das hochgeladene PDF-Dokument...")
     try:
+        first_pages = []
+        target_pages = []
         last_pages = chunk_file(tmp_pdf.name)
     except Exception as e:
         raise HTTPException(
             status_code=500,
             detail=f"Fehler beim Einlesen des Dokuments: {e}"
         )
-    print("Dokument eingelesen und in Seiten aufgeteilt.")
+    print(f"Dokument erfolgreich eingelesen und in {len(last_pages)} Seiten aufgeteilt.")
 
     all_index_cards = []
 
     while len(last_pages) > 0:
         print(f"{len(first_pages)}/{len(target_pages) + len(first_pages) + len(last_pages)} Seiten verarbeitet.")
 
-        first_pages, target_pages, last_pages = jump_through_lists([], [], last_pages, jump=5)
+        first_pages, target_pages, last_pages = jump_through_lists(first_pages, target_pages, last_pages, jump=5)
         initial_state = {
             "first_pages": first_pages,
             "target_pages": target_pages,
@@ -92,6 +104,7 @@ async def generate(
 
 @app.get("/health", summary="Health-Check der API")
 def health_check():
+    """Gibt den aktuellen Status der API zurück (ok)."""
     return {"status": "ok"}
 
 # Statische Website bereitstellen

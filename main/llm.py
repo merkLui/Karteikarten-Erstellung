@@ -1,8 +1,5 @@
-import math
-import numexpr
+"""Modul zur Initialisierung des LLM-Modells für die Indexkarten-Erstellung."""
 
-from langchain_core.tools import tool
-#from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import AzureChatOpenAI
 
 from dotenv import load_dotenv
@@ -10,7 +7,7 @@ import os
 
 load_dotenv()
 
-
+# Chat-Modell für Textgesteuerte Karteikartenerstellung
 model = AzureChatOpenAI(
     azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
     api_key=os.getenv("AZURE_OPENAI_API_KEY"),
@@ -19,6 +16,7 @@ model = AzureChatOpenAI(
     reasoning_effort="low"
 )
 
+# Modell für Bilderkennung und Bildinterpretation
 model_for_images = AzureChatOpenAI(
     azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
     api_key=os.getenv("AZURE_OPENAI_API_KEY"),

@@ -1,6 +1,7 @@
+"""Modul zum Zerlegen von PDF-Dokumenten in Seiten und Speichern als CSV."""
+
 import os
 import csv
-
 from typing import List
 
 from langchain_core.documents import Document
@@ -12,6 +13,7 @@ from langchain_pymupdf4llm import PyMuPDF4LLMLoader
 from .llm import model_for_images
 
 def chunk_file(file_path):
+    """Lädt ein PDF und zerlegt es in Seiten und Bildinhalte."""
 
     file_path = file_path
     loader = PyMuPDF4LLMLoader(
@@ -25,6 +27,7 @@ def chunk_file(file_path):
     return loader.load()
 
 def load_docs(path: str) -> List[Document]:
+    """Lädt alle PDF-Dateien in einem Verzeichnis und zerlegt sie."""
     documents: List[Document] = []
     for root, _, files in os.walk(path):
         for fname in files:
@@ -37,18 +40,16 @@ def load_docs(path: str) -> List[Document]:
 
 def jump_through_lists(first_list: list, middle_list: list, last_list: list, jump: int):
     """
-    Verschiebt Elemente zwischen drei Listen in einer Sequenz:
-    1. Fügt mittlere Liste zur ersten Liste hinzu
-    2. Nimmt die nächsten 'jump' Elemente aus der letzten Liste und macht sie zur mittleren Liste
-    
+    Verschiebt Elemente sequenziell zwischen drei Listen.
+
     Args:
-        first_list: Die Liste, die Elemente aus der mittleren Liste aufnimmt
-        middle_list: Die Liste, die zwischen erster und letzter Liste wandert
-        last_list: Die Liste, aus der neue Elemente genommen werden
-        jump: Anzahl der Elemente, die von last_list zu middle_list verschoben werden
-        
+        first_list: Bereits bearbeitete Seiten.
+        middle_list: Aktuell zu bearbeitende Seiten.
+        last_list: Noch nicht bearbeitete Seiten.
+        jump: Anzahl der Seiten, die in den nächsten Verarbeitungszyklus gehen.
+
     Returns:
-        tuple: (first_list, middle_list, last_list) - die aktualisierten Listen
+        Aktualisierte erste, mittlere und letzte Liste.
     """
     # Verschiebe middle_list zu first_list
     if middle_list:
@@ -69,9 +70,7 @@ def jump_through_lists(first_list: list, middle_list: list, last_list: list, jum
 
 
 def deduplicate_flat_flashcards(flat_flashcard_data):
-    """
-    Entfernt exakte Duplikate aus einer flachen Liste von Karteikarten-Dicts.
-    """
+    """Entfernt exakte Duplikate aus einer Liste von Karteikarten-Dictionaries."""
     unique_cards_list = []
     seen_cards_tuples = set()
     required_keys = ['question', 'answer', 'source']
@@ -88,10 +87,7 @@ def deduplicate_flat_flashcards(flat_flashcard_data):
     return unique_cards_list
 
 def save_index_cards_as_csv(results, csv_filename, path_to_directory):
-    """
-    Speichert eine flache Liste von Karteikarten-Dicts als CSV
-    (Spalten: Frage | Antwort, wobei die Quelle an die Antwort angehängt wird).
-    """
+    """Speichert Karteikarten-Dicts als CSV-Datei mit zwei Spalten: Frage und Antwort."""
     # Nur noch zwei CSV-Spalten
     headers = ['Frage', 'Antwort']
     row_count = 0

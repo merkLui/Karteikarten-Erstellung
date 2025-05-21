@@ -1,6 +1,8 @@
+<!-- index.html - Web-Interface für den KI-gestützten Karteikarten-Generator -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
+  <!-- Meta-Daten und externe Styles -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Karteikarten-Generator</title>
@@ -8,7 +10,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Navigation Bar -->
+  <!-- Navigation Bar: Kopfzeile mit Markenname -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">Karteikarten-Generator</a>
@@ -17,11 +19,13 @@
   <div class="container py-5 d-flex justify-content-center">
     <div class="card shadow-lg w-75">
       <div class="card-body">
+        <!-- Haupttitel und Formular-Bereich -->
         <h1 class="card-title text-center mb-4">KI-gestützter Karteikarten-Generator</h1>
         <div class="mb-3">
           <label for="apiKey" class="form-label">API-Key</label>
           <input type="text" id="apiKey" class="form-control" placeholder="X-API-Key" required>
         </div>
+        <!-- Upload-Formular: API-Key, PDF-Auswahl, Nutzeranweisungen und Button -->
         <form id="uploadForm">
           <div class="mb-3">
             <label for="pdfFile" class="form-label">PDF-Datei</label>
@@ -33,10 +37,12 @@
           </div>
           <button type="submit" class="btn btn-primary w-100">Generieren</button>
         </form>
+        <!-- Statusanzeige: Fortschritt, Fehler- und Erfolgsmeldungen -->
         <div id="progress" class="mt-4"></div>
       </div>
     </div>
   </div>
+  <!-- Einbindung der Frontend-Logik -->
   <script src="app.js"></script>
 </body>
 </html>

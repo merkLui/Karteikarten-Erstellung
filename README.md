@@ -1,102 +1,124 @@
 <!-- README komplett überarbeitet -->
 # KI-gestützte Karteikarten-Erstellung
 
-**Automatische Generierung von Frage-Antwort-Karteikarten aus PDF-Dokumenten über eine REST-API mit Web-Interface.**
+Eine leicht bedienbare Anwendung zum automatischen Erstellen von Frage-Antwort-Karteikarten aus PDF-Dokumenten.
+
+## Was macht dieses Projekt?
+- **PDF-Upload**: Lade deine Vorlesungsunterlagen hoch.
+- **KI-gestützte Generierung**: Die Anwendung erstellt automatisch Karteikarten (Frage bzw. Antwort) mit Quellenangabe und Formeln.
+- **CSV-Download**: Lade die fertigen Karteikarten als CSV-Datei herunter und nutze sie in deinem Lerntool.
+- **Schnelle Installation**: Keine Programmierkenntnisse nötig, einfache Anleitung.
 
 ---
 
-## Features
-
-- Upload von PDFs per HTTP-Endpoint oder über ein integriertes Web-Frontend
-- KI-basierte Umwandlung in Frage-Antwort-Karteikarten mit Quellenangabe und LaTeX-Formeln
-- Ausgabe der Karteikarten als Download im CSV-Format
-- Einfache Authentifizierung via API-Key-Header
-- Bereitstellung von Health-Check und statischen Assets
-
-## Projektstruktur
-
-```
-root/
-├── data/
-│   ├── Vorlesungsunterlagen/   ← Eingabe-PDFs
-│   └── Karteikarten/           ← Ausgabe-CSV-Dateien
-├── main/                       ← Python-Backend (FastAPI)
-│   ├── ai.py
-│   ├── api.py
-│   ├── chunk.py
-│   ├── llm.py
-│   ├── prompt.py
-│   ├── web/                    ← Statisches Web-Frontend (HTML/CSS/JS)
-│   └── ...
-├── requirements.txt            ← Python-Abhängigkeiten
-└── README.md                   ← Projektbeschreibung
-```
-
 ## Voraussetzungen
+- Ein Computer mit Windows, macOS oder Linux
+- Internetzugang (für KI-Aufrufe)
+- PDF-Datei mit Lerninhalten
 
-- Python 3.8 oder höher
-- `pip` zum Installieren der Abhängigkeiten
-- (Optional) Virtual Environment
+> **Hinweis:** Alles Weitere läuft in einem einzelnen Terminalfenster ab. Du benötigst keine Kenntnisse in Python oder Serverbetrieb.
 
-## Einrichtung
+---
 
-1. Repository klonen:
+## Schritt-für-Schritt-Anleitung
+
+1. **Projekt herunterladen**
+
+   - Klicke oben auf **Code** und lade das Repository als ZIP herunter.
+   - Entpacke die ZIP-Datei an einem Ort deiner Wahl.
+
+2. **Terminal öffnen**
+
+   - Windows: Öffne die **Eingabeaufforderung** (cmd) oder **PowerShell**.
+   - macOS: Öffne die **Terminal-App**.
+   - Linux: Öffne dein bevorzugtes Terminal.
+
+3. **Verzeichnis wechseln**
+
+   Tippe im Terminal:
    ```bash
-   git clone <URL> lern-app
-   cd lern-app
+   cd PFAD/ZUM/ENTPACKTEN/ORDNER
    ```
-2. Virtuelle Umgebung anlegen & aktivieren:
+   Ersetze `PFAD/ZUM/ENTPACKTEN/ORDNER` mit dem tatsächlichen Pfad.
+
+4. **Virtuelle Umgebung erstellen (einmalig)**
+
    ```bash
    python -m venv .venv
-   source .venv/bin/activate  # Windows: .venv\Scripts\activate
    ```
-3. Abhängigkeiten installieren:
+   
+5. **Umgebung aktivieren**
+
+   - Windows:
+     ```bash
+     .venv\Scripts\activate
+     ```
+   - macOS/Linux:
+     ```bash
+     source .venv/bin/activate
+     ```
+
+6. **Abhängigkeiten installieren**
+
    ```bash
    pip install -r requirements.txt
    ```
-4. Umgebungsvariablen setzen in der .env setzten:
+
+7. **Umgebungsvariablen setzen**
+
    ```bash
-   export AZURE_OPENAI_ENDPOINT="<endpoint>"
-   export AZURE_OPENAI_API_KEY="<key>"
+   export API_KEY="DEIN-API-KEY"
+   export AZURE_OPENAI_ENDPOINT="DEIN-ENDPOINT"
+   export AZURE_OPENAI_API_KEY="DEIN-SCHLÜSSEL"
+   ```
+   - Auf Windows in PowerShell statt `export` nutze:
+     ```powershell
+     setx API_KEY "DEIN-API-KEY"
+     setx AZURE_OPENAI_ENDPOINT "DEIN-ENDPOINT"
+     setx AZURE_OPENAI_API_KEY "DEIN-SCHLÜSSEL"
+     ```
+
+8. **Anwendung starten**
+
+   ```bash
+   uvicorn main.api:app --host 0.0.0.0 --port 8000 --reload
    ```
 
-## API starten
+9. **Web-Interface öffnen**
 
-Setze die FastAPI-Server API:
+   - Öffne deinen Browser unter:
+     ```text
+     http://localhost:8000/
+     ```
+   - Gib deinen API-Key ein, lade eine PDF hoch und klicke auf **Generieren**.
 
-```bash
-export API_KEY="mein-geheimer-key"
-```
+10. **CSV herunterladen**
 
-Starte den FastAPI-Server mit:
-```bash
-uvicorn main.api:app --host 0.0.0.0 --port 8000 --reload
-```
+    Nach erfolgreicher Verarbeitung startet automatisch der Download deiner Karteikarten.
 
-## Nutzung
+---
 
-### Web-Frontend
+## Alternative: Kommandozeile (curl)
 
-1. Browser öffnen unter `http://localhost:8000/`
-2. API-Key eingeben
-3. PDF auswählen und optional Nutzeranweisungen ergänzen
-4. Klick auf **Generieren** → CSV-Download startet automatisch
-
-### Curl-Beispiel
+Falls du lieber direkt im Terminal arbeitest:
 
 ```bash
-curl -X POST "http://localhost:8000/generate" \
-     -H "X-API-Key: $API_KEY" \
-     -F file=@"./data/Vorlesungsunterlagen/beispiel.pdf" \
-     -F user_instructions="Optionale Hinweise"
+curl -X POST http://localhost:8000/generate \
+  -H "X-API-Key: $API_KEY" \
+  -F file=@"Pfad/zur/Datei.pdf" \
+  -F user_instructions="Optionale Hinweise"
 ```
 
-Die Antwort ist eine CSV-Datei mit den Karteikarten.
 
-## Deployment
+---
 
-Empfohlen für Testzwecke: Azure App Service oder Functions. Einfache Containerisierung per Docker möglich.
+## Hilfe & Support
 
-## Lizenz & Haftungsausschluss
+Bei Problemen:
+- Kontrolliere, ob deine Umgebungsvariablen korrekt gesetzt sind.
+- Achte auf PDF-Dateien ohne ungewöhnliche Passwörter oder Schutzmechanismen.
+- Suche in den Logs des Terminals nach Fehlermeldungen.
 
-Nur zu Demonstrationszwecken. Nutzung auf eigenes Risiko.
+---
+
+© 2025 KI-gestützte Karteikarten-Erstellung – Nutzung auf eigenes Risiko.
