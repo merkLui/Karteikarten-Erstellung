@@ -1,10 +1,11 @@
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends, Request  # Request importieren
 from fastapi.security.api_key import APIKeyHeader, APIKey
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles  # neu importieren
 import os
 import uuid
 import tempfile
+import json  # neu importieren
 
 from .chunk import chunk_file, jump_through_lists, save_index_cards_as_csv
 from .ai import graph
@@ -41,17 +42,28 @@ async def generate(
     tmp_pdf.write(data)
     tmp_pdf.close()
     # Dokument in Seiten und Bilder aufteilen
-    pages = chunk_file(tmp_pdf.name)
-    # Initiale Logik
-    first_pages, target_pages, last_pages = jump_through_lists([], [], pages, jump=5)
-    initial_state = {"first_pages": first_pages, "target_pages": target_pages, "last_pages": last_pages, "user_instructions": user_instructions}
-    # Graph ausführen
-    result = graph.invoke(initial_state, {"recursion_limit": 100})
-    all_cards = result.get("all_index_cards", [])
+    first_pages = []
+    target_pages = []
+    last_pages = chunk_file(tmp_pdf.name)
+
+    all_index_cards = []
+
+    while len(last_pages) > 0:
+        # Initiale Logik
+        first_pages, target_pages, last_pages = jump_through_lists([], [], last_pages, jump=5)
+        initial_state = {"first_pages": first_pages, "target_pages": target_pages, "last_pages": last_pages, "user_instructions": user_instructions, "all_index_cards": all_index_cards}
+        # Graph ausführen
+        result = graph.invoke(initial_state, {"recursion_limit": 100})
+        all_index_cards = result.get("all_index_cards", [])
+        first_pages = result.get("first_pages", [])
+        target_pages = result.get("target_pages", [])
+        last_pages = result.get("last_pages", [])
+
+    
     # CSV erzeugen
     tmp_dir = tempfile.mkdtemp()
     csv_name = f"{uuid.uuid4()}.csv"
-    save_index_cards_as_csv(all_cards, csv_name, tmp_dir)
+    save_index_cards_as_csv(all_index_cards, csv_name, tmp_dir)
     csv_path = os.path.join(tmp_dir, csv_name)
     return FileResponse(path=csv_path, filename=csv_name, media_type="text/csv")
 

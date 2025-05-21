@@ -18,7 +18,6 @@ def index_card_builder(state: GraphState):
     first_pages = state.get("first_pages", [])
     target_pages = state.get("target_pages", [])
     last_pages = state.get("last_pages", [])
-    staged_index_cards = state.get("staged_index_cards", [])
     user_instructions = state.get("user_instructions", "")
 
     # Limit first_pages and last_pages to 100 elements if they exceed that length
@@ -70,16 +69,6 @@ def index_card_supervisor(state: GraphState):
     for approved_index_card in approved_index_cards:
         all_index_cards.append(approved_index_card)
 
-    # Verwende die ausgelagerte Funktion mit einem Jump von 5
-    first_pages, target_pages, last_pages = jump_through_lists(
-        first_pages, target_pages, last_pages, jump=5
-    )
-
-    len_all_pages = len(target_pages) + len(first_pages) + len(last_pages)
-    finished_pages = len(first_pages)
-    score = int((finished_pages / len_all_pages) * 100) if len_all_pages > 0 else 0
-    print(finished_pages*"#"+(len_all_pages-finished_pages)*"-"+" "+str(score)+"%", end="\r")
-
     return {
         "all_index_cards": all_index_cards,
         "target_pages": target_pages,
@@ -107,7 +96,7 @@ builder.add_node("index_card_supervisor", index_card_supervisor)
 
 builder.add_edge(START, "index_card_builder")
 builder.add_edge("index_card_builder", "index_card_supervisor")
-builder.add_conditional_edges("index_card_supervisor", conditional_edge)
+builder.add_edge("index_card_supervisor", END)
 
 
 graph = builder.compile()
