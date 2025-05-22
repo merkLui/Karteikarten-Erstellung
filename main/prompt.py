@@ -53,11 +53,11 @@ Das Ziel ist ausschließlich mit diesen Karteikarten auf eine Prüfung zu lernen
 Hier ein Beispiel einer optimal formatierten Karteikarte:
     {{
         "question": "Was besagt die **relative Kaufkraftparität (PPP)** und wie lautet ihre Grundformel?",
-        "answer": "• Kernaussage: Die prozentuale Änderung des Wechselkurses entspricht näherungsweise der Differenz der Inflationsraten zwischen In- und Ausland.\n"
-                    "• Mathematische Darstellung (Display-Formel):\n"
-                    "  \\[ \\frac{{\\Delta w}}{{w}} \\approx \\pi_{{\\text{{Inland}}}} - \\pi_{{\\text{{Ausland}}}} \\]\n"
-                    "• Interpretation: Liegt die inländische Inflation um beispielsweise \\(2\\,\\text{{Prozentpunkte}}\\) über der ausländischen, wertet die Inlandswährung langfristig um rund 2 % ab.\n\n"
-                    "Quelle: S. 76, Abschnitt 2.8 Kaufkraftparität",
+        "answer":   "• Kernaussage: Die prozentuale Änderung des Wechselkurses entspricht näherungsweise der Differenz der Inflationsraten zwischen In- und Ausland.\n
+                    • Mathematische Darstellung (Display-Formel):\n
+                    \\[ \\frac{{\\Delta w}}{{w}} \\approx \\pi_{{\\text{{Inland}}}} - \\pi_{{\\text{{Ausland}}}} \\]\n
+                    • Interpretation: Liegt die inländische Inflation um beispielsweise \\(2\\,\\text{{Prozentpunkte}}\\) über der ausländischen, wertet die Inlandswährung langfristig um rund 2 % ab.\n\n"
+        "Quelle:    "S. 76, Abschnitt 2.8 Kaufkraftparität",
     }}
 
 **BALANCE ZWISCHEN ATOMIZITÄT UND ZUSAMMENHANG (WICHTIG):**
@@ -114,11 +114,11 @@ Du prüfst auf 4 Punkte:
 - Hier ein Beispiel einer optimal formatierten Karteikarte:
     {{
         "question": "Was besagt die **relative Kaufkraftparität (PPP)** und wie lautet ihre Grundformel?",
-        "answer": "• Kernaussage: Die prozentuale Änderung des Wechselkurses entspricht näherungsweise der Differenz der Inflationsraten zwischen In- und Ausland.\n"
-                "• Mathematische Darstellung (Display-Formel):\n"
-                "  \\[ \\frac{{\\Delta w}}{{w}} \\approx \\pi_{{\\text{{Inland}}}} - \\pi_{{\\text{{Ausland}}}} \\]\n"
-                "• Interpretation: Liegt die inländische Inflation um beispielsweise \\(2\\,\\text{{Prozentpunkte}}\\) über der ausländischen, wertet die Inlandswährung langfristig um rund 2 % ab.\n\n"
-                "Quelle: S. 76, Abschnitt 2.8 Kaufkraftparität"
+        "answer":   "• Kernaussage: Die prozentuale Änderung des Wechselkurses entspricht näherungsweise der Differenz der Inflationsraten zwischen In- und Ausland.\n
+                    • Mathematische Darstellung (Display-Formel):\n
+                      \\[ \\frac{{\\Delta w}}{{w}} \\approx \\pi_{{\\text{{Inland}}}} - \\pi_{{\\text{{Ausland}}}} \\]\n
+                    • Interpretation: Liegt die inländische Inflation um beispielsweise \\(2\\,\\text{{Prozentpunkte}}\\) über der ausländischen, wertet die Inlandswährung langfristig um rund 2 % ab.\n\n"
+        "Quelle:    "S. 76, Abschnitt 2.8 Kaufkraftparität"
     }}
 -> Falls du hierbei auf Probleme stößt, passe die Karteikarten an, sodass sie den Anforderungen entsprechen.
 
