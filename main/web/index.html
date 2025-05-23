@@ -44,11 +44,21 @@
             <textarea id="instructions" class="form-control" rows="3"></textarea>
           </div>
 
-          <button type="submit" class="btn btn-primary w-100">Generieren</button>
+          <button id="generateBtn" type="submit" class="btn btn-primary w-100">
+            Generieren
+          </button>
         </form>
 
         <!-- Fortschrittsanzeige -->
         <div id="progress" class="mt-4"></div>
+
+        <!-- Karten-/CSV-Vorschau -->
+        <div id="csvPreview" class="mt-4 table-responsive" style="display:none;"></div>
+
+        <!-- Download-Knopf -->
+        <button id="downloadBtn" class="btn btn-success w-100 mt-2" style="display:none;">
+          CSV herunterladen
+        </button>
       </div>
     </div>
   </main>

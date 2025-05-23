@@ -1,11 +1,14 @@
-// Frontend-Logik für Streaming-Progress & Download (ohne Prozenttext)
+// Frontend-Logik für Streaming-Progress, Vorschau & Download
 
 document.addEventListener('DOMContentLoaded', () => {
   const form        = document.getElementById('uploadForm');
+  const generateBtn = document.getElementById('generateBtn');
   const pdfInput    = document.getElementById('pdfFile');
   const instrInput  = document.getElementById('instructions');
   const apiKeyInput = document.getElementById('apiKey');
   const progressDiv = document.getElementById('progress');
+  const previewDiv  = document.getElementById('csvPreview');
+  const downloadBtn = document.getElementById('downloadBtn');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -19,7 +22,16 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Balken sofort bei 0 % anzeigen ---------------------------------------
+    // UI-Reset -------------------------------------------------------------
+    progressDiv.innerHTML = '';
+    previewDiv.style.display = 'none';
+    previewDiv.innerHTML = '';
+    downloadBtn.style.display = 'none';
+
+    // Knopf ausblenden, um Doppel-Submit zu verhindern
+    generateBtn.style.display = 'none';
+
+    // Fortschrittsbalken ---------------------------------------------------
     progressDiv.innerHTML = `
       <div class="progress">
         <div id="progressBar"
@@ -43,13 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!resp.ok) {
         progressDiv.innerHTML =
           `<div class="alert alert-danger">Fehler: ${resp.status}</div>`;
+        generateBtn.style.display = 'block';
         return;
       }
 
       const reader = resp.body.getReader();
       const dec    = new TextDecoder();
       const esc    = (t) => `"${String(t).replace(/"/g, '""')}"`;
-      const csv    = [];
+      const csvRows = [];
 
       while (true) {
         const { value, done } = await reader.read();
@@ -67,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  break;
 
                case 'card':
-                 csv.push([esc(d.question), esc(d.answer)].join(';'));
+                 csvRows.push([esc(d.question), esc(d.answer)].join(';'));
                  break;
 
                case 'error':
@@ -78,19 +91,55 @@ document.addEventListener('DOMContentLoaded', () => {
                case 'done':
                  bar.style.width = '100%';
 
-                 // CSV-Download
-                 const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
-                 const url  = URL.createObjectURL(blob);
-                 const a    = document.createElement('a');
-                 a.href = url;
-                 a.download = file.name.replace(/\.pdf$/i, '.csv');
-                 document.body.appendChild(a);
-                 a.click();
-                 a.remove();
-                 URL.revokeObjectURL(url);
+                 // CSV als Tabelle anzeigen --------------------------------
+                 if (csvRows.length === 0) {
+                   previewDiv.innerHTML =
+                     '<div class="alert alert-info">Keine Karteikarten erzeugt.</div>';
+                 } else {
+                   const table = document.createElement('table');
+                   table.className = 'table table-striped table-bordered';
+
+                   // Kopf
+                   table.innerHTML = `
+                     <thead>
+                       <tr><th>Frage</th><th>Antwort</th></tr>
+                     </thead>
+                     <tbody></tbody>`;
+
+                   const tbody = table.querySelector('tbody');
+                   csvRows.forEach(r => {
+                     const [qRaw, aRaw] = r.split(';');
+                     const q = qRaw.replace(/^"|"$/g, '').replace(/""/g, '"');
+                     const a = aRaw.replace(/^"|"$/g, '').replace(/""/g, '"');
+                     const row = document.createElement('tr');
+                     row.innerHTML = `<td>${q}</td><td>${a.replace(/\n/g, '<br>')}</td>`;
+                     tbody.appendChild(row);
+                   });
+
+                   previewDiv.appendChild(table);
+                 }
+
+                 previewDiv.style.display = 'block';
+
+                 // Download-Knopf vorbereiten ------------------------------
+                 downloadBtn.style.display = 'block';
+                 downloadBtn.onclick = () => {
+                   const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+                   const url  = URL.createObjectURL(blob);
+                   const a    = document.createElement('a');
+                   a.href = url;
+                   a.download = file.name.replace(/\.pdf$/i, '.csv');
+                   document.body.appendChild(a);
+                   a.click();
+                   a.remove();
+                   URL.revokeObjectURL(url);
+                 };
 
                  progressDiv.innerHTML +=
-                   '<div class="alert alert-success mt-2">CSV heruntergeladen.</div>';
+                   '<div class="alert alert-success mt-2">Fertig – überprüfe die Ergebnisse!</div>';
+
+                 // Generieren-Knopf wieder anzeigen
+                 generateBtn.style.display = 'block';
                  break;
              }
            });
@@ -98,6 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       progressDiv.innerHTML =
         `<div class="alert alert-danger">Netzwerkfehler: ${err.message}</div>`;
+      generateBtn.style.display = 'block';
     }
   });
 });

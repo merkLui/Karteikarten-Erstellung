@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 import os, uuid, tempfile, json
 from typing import List, Dict
 
-from .chunk import chunk_file, jump_through_lists, save_index_cards_as_csv
+from .chunk import chunk_file, jump_through_lists
 from .ai import graph
 
 # ---------------------------------------------------------------------------#
