@@ -1,124 +1,151 @@
-<!-- README komplett überarbeitet -->
-# KI-gestützte Karteikarten-Erstellung
+<!-- README – an aktuelle Version angepasst -->
+# 🧠 KI-gestützte Karteikarten-Erstellung
 
-Eine leicht bedienbare Anwendung zum automatischen Erstellen von Frage-Antwort-Karteikarten aus PDF-Dokumenten.
-
-## Was macht dieses Projekt?
-- **PDF-Upload**: Lade deine Vorlesungsunterlagen hoch.
-- **KI-gestützte Generierung**: Die Anwendung erstellt automatisch Karteikarten (Frage bzw. Antwort) mit Quellenangabe und Formeln.
-- **CSV-Download**: Lade die fertigen Karteikarten als CSV-Datei herunter und nutze sie in deinem Lerntool.
-- **Schnelle Installation**: Keine Programmierkenntnisse nötig, einfache Anleitung.
+Eine schlanke Web-App, die aus deinen PDF-Unterlagen automatisch Frage-Antwort-Karteikarten erzeugt!
 
 ---
 
-## Voraussetzungen
-- Ein Computer mit Windows, macOS oder Linux
-- Internetzugang (für KI-Aufrufe)
-- PDF-Datei mit Lerninhalten
+## ✨ Features
 
-> **Hinweis:** Alles Weitere läuft in einem einzelnen Terminalfenster ab. Du benötigst keine Kenntnisse in Python oder Serverbetrieb.
-
----
-
-## Schritt-für-Schritt-Anleitung
-
-1. **Projekt herunterladen**
-
-   - Klicke oben auf **Code** und lade das Repository als ZIP herunter.
-   - Entpacke die ZIP-Datei an einem Ort deiner Wahl.
-
-2. **Terminal öffnen**
-
-   - Windows: Öffne die **Eingabeaufforderung** (cmd) oder **PowerShell**.
-   - macOS: Öffne die **Terminal-App**.
-   - Linux: Öffne dein bevorzugtes Terminal.
-
-3. **Verzeichnis wechseln**
-
-   Tippe im Terminal:
-   ```bash
-   cd PFAD/ZUM/ENTPACKTEN/ORDNER
-   ```
-   Ersetze `PFAD/ZUM/ENTPACKTEN/ORDNER` mit dem tatsächlichen Pfad.
-
-4. **Virtuelle Umgebung erstellen (einmalig)**
-
-   ```bash
-   python -m venv .venv
-   ```
-   
-5. **Umgebung aktivieren**
-
-   - Windows:
-     ```bash
-     .venv\Scripts\activate
-     ```
-   - macOS/Linux:
-     ```bash
-     source .venv/bin/activate
-     ```
-
-6. **Abhängigkeiten installieren**
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-7. **Umgebungsvariablen setzen**
-
-   ```bash
-   export API_KEY="DEIN-API-KEY"
-   export AZURE_OPENAI_ENDPOINT="DEIN-ENDPOINT"
-   export AZURE_OPENAI_API_KEY="DEIN-SCHLÜSSEL"
-   ```
-   - Auf Windows in PowerShell statt `export` nutze:
-     ```powershell
-     setx API_KEY "DEIN-API-KEY"
-     setx AZURE_OPENAI_ENDPOINT "DEIN-ENDPOINT"
-     setx AZURE_OPENAI_API_KEY "DEIN-SCHLÜSSEL"
-     ```
-
-8. **Anwendung starten**
-
-   ```bash
-   uvicorn main.api:app --host 0.0.0.0 --port 8000 --reload
-   ```
-
-9. **Web-Interface öffnen**
-
-   - Öffne deinen Browser unter:
-     ```text
-     http://localhost:8000/
-     ```
-   - Gib deinen API-Key ein, lade eine PDF hoch und klicke auf **Generieren**.
-
-10. **CSV herunterladen**
-
-    Nach erfolgreicher Verarbeitung startet automatisch der Download deiner Karteikarten.
+| Feature                 | Beschreibung                                                                                              |
+| :---------------------- | :-------------------------------------------------------------------------------------------------------- |
+| 📄 **PDF-Upload**       | Zieh deine Vorlesungs-, Skript- oder Foliensammlung per Drag-and-Drop ins Web-Interface.                  |
+| 🤖 **KI-Generierung**   | Erstellt automatisch Karteikarten mit Frage, Antwort, Quellenangabe und Formeln.                        |
+| 📊 **Live-Fortschritt & Vorschau** | Fortschrittsbalken + wachsende Tabelle zeigen dir schon während der Verarbeitung jede neue Karte. |
+| 💾 **CSV-Export**       | Lade die fertigen (oder bereits teilweise erzeugten) Karteikarten als CSV herunter und importiere sie in Anki & Co. |
+| 🚑 **Robust bei Abbruch** | Bricht die Verbindung bei 50 % ab, kannst du die bis dahin generierten Karten trotzdem speichern.        |
+| ⚡ **Schnelle Installation** | Keine Python-Vorkenntnisse nötig – ein Terminalfenster genügt.                                        |
 
 ---
 
-## Alternative: Kommandozeile (curl)
+## 🖥️ Voraussetzungen
 
-Falls du lieber direkt im Terminal arbeitest:
+*   Windows, macOS oder Linux
+*   Internetverbindung (für die KI-Aufrufe)
+*   Eine PDF-Datei mit Lerninhalten
 
-```bash
-curl -X POST http://localhost:8000/generate \
-  -H "X-API-Key: $API_KEY" \
-  -F file=@"Pfad/zur/Datei.pdf" \
-  -F user_instructions="Optionale Hinweise"
-```
-
+> ℹ️ Alles Weitere geschieht in **einem** Terminalfenster – du musst weder Python-Code schreiben noch einen Web-Server konfigurieren.
 
 ---
 
-## Hilfe & Support
+## 🚀 Schnellstart
 
-Bei Problemen:
-- Kontrolliere, ob deine Umgebungsvariablen korrekt gesetzt sind.
-- Achte auf PDF-Dateien ohne ungewöhnliche Passwörter oder Schutzmechanismen.
-- Suche in den Logs des Terminals nach Fehlermeldungen.
+1.  **Verzeichnis wechseln**
+
+    ```bash
+    cd PFAD/ZUM/GITHUBREPO/Karteikarten-Erstellung
+    ```
+
+    Ersetze `PFAD/ZUM/GITHUBREPO/Karteikarten-Erstellung` durch deinen tatsächlichen Pfad.
+
+2.  **Virtuelle Umgebung erstellen (einmalig)**
+
+    ```bash
+    python -m venv .venv
+    ```
+
+3.  **Umgebung aktivieren**
+
+    *   **Windows:**
+        ```bash
+        .venv\Scripts\activate
+        ```
+    *   **macOS / Linux:**
+        ```bash
+        source .venv/bin/activate
+        ```
+
+4.  **Abhängigkeiten installieren**
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+5.  **Umgebungsvariablen setzen**
+
+    **Variante A – manuell im Terminal (bei jedem neuen Terminalfenster)**
+
+    *   **macOS / Linux:**
+        ```bash
+        export API_KEY="DEIN-API-KEY"
+        export AZURE_OPENAI_ENDPOINT="DEIN-ENDPOINT"
+        export AZURE_OPENAI_API_KEY="DEIN-SCHLÜSSEL"
+        ```
+    *   **Windows (PowerShell):**
+        ```powershell
+        setx API_KEY "DEIN-API-KEY"
+        setx AZURE_OPENAI_ENDPOINT "DEIN-ENDPOINT"
+        setx AZURE_OPENAI_API_KEY "DEIN-SCHLÜSSEL"
+        ```
+
+    **Variante B – per `.env`-Datei (empfohlen)**
+
+    1.  Wechsle in das Hauptverzeichnis der App:
+        ```bash
+        cd Karteikarten-Erstellung/main/
+        ```
+    2.  `.env`-Datei anlegen:
+        *   **macOS / Linux:**
+            ```bash
+            touch .env
+            ```
+        *   **Windows (PowerShell):**
+            ```powershell
+            New-Item -Name .env -ItemType File
+            ```
+    3.  Inhalt der `.env`-Datei:
+        ```env
+        API_KEY="DEIN-API-KEY"
+        AZURE_OPENAI_ENDPOINT="DEIN-ENDPOINT"
+        AZURE_OPENAI_API_KEY="DEIN-SCHLÜSSEL"
+        ```
+
+6.  **Anwendung starten**
+
+    ```bash
+    uvicorn main.api:app --host 0.0.0.0 --port 8000 --reload
+    ```
+
+7.  **Web-Interface öffnen**
+
+    Öffne [http://localhost:8000/](http://localhost:8000/) in deinem Browser.
+
+    1.  API-Key eingeben
+    2.  PDF hochladen
+    3.  "Generieren" klicken – die Tabelle füllt sich live
+
+8.  **CSV herunterladen**
+
+    Über "CSV herunterladen" kannst du jederzeit das aktuelle Ergebnis sichern – auch wenn der Prozess vorzeitig abgebrochen ist.
 
 ---
 
-© 2025 KI-gestützte Karteikarten-Erstellung – Nutzung auf eigenes Risiko.
+## 💡 Anki Import
+
+So importierst du die CSV-Datei in Anki:
+
+1.  **Stapel erstellen/auswählen:**
+    *   Erstelle einen neuen Kartenstapel in Anki über "Stapel erstellen", falls die Karten in einen neuen Stapel sollen.
+    *   Oder stelle sicher, dass der gewünschte Zielstapel bereits vorhanden ist.
+2.  **Importdialog öffnen:**
+    *   Klicke auf "Datei importieren".
+3.  **CSV-Datei auswählen:**
+    *   Wähle die heruntergeladene CSV-Datei aus, die du importieren möchtest.
+4.  **Importeinstellungen prüfen:**
+    *   **Datei:** Stelle sicher, dass beim Feld: "Feld-Trennzeichen" die Option "Semikolon" ausgewählt ist.
+    *   **Einstellungen für den Import:** Prüfe, dass beim Feld: "Stapel", ob der korrekte Stapel ausgewählt ist.
+5.  **Import starten und abschließen:**
+    *   Klicke oben rechts auf den Knopf "Importieren".
+    *   Drücke nach erfolgreichem Import so oft die `Esc`-Taste, bis du wieder im Hauptbildschirm von Anki bist.
+    *   Nun kannst du den Stapel öffnen und mit deinen neuen Karteikarten lernen.
+
+## 🆘 Hilfe & Support
+
+*   Prüfe, ob deine Umgebungsvariablen korrekt gesetzt sind (oder die `.env`-Datei gefunden wird).
+*   Vermeide passwortgeschützte oder beschädigte PDFs.
+*   Sieh bei Fehlern ins Terminal – dort erscheinen detaillierte Logs.
+
+---
+
+© 2025 – KI-gestützte Karteikarten-Erstellung · Nutzung auf eigenes Risiko.
+
