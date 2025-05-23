@@ -1,4 +1,4 @@
-// Frontend-Logik für Streaming-Progress, Live-Vorschau & Download
+// Frontend-Logik für Streaming-Progress, Live-Vorschau & (Not-)Download
 
 document.addEventListener('DOMContentLoaded', () => {
   const form        = document.getElementById('uploadForm');
@@ -34,6 +34,26 @@ document.addEventListener('DOMContentLoaded', () => {
     generateBtn.style.display = 'none';           // Doppel-Submit verhindern
 
     /* ------------------------------------------------------------------ *
+     * Hilfsfunktion: Download-Knopf sichtbar machen
+     * ------------------------------------------------------------------ */
+    const csvRows  = [];                  // wird während des Streams befüllt
+    function enableDownload() {
+      if (csvRows.length === 0) return;
+      downloadBtn.style.display = 'block';
+      downloadBtn.onclick = () => {
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url;
+        a.download = file.name.replace(/\.pdf$/i, '.csv');
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      };
+    }
+
+    /* ------------------------------------------------------------------ *
      * 3) Fortschrittsbalken
      * ------------------------------------------------------------------ */
     progressDiv.innerHTML = `
@@ -50,6 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('user_instructions', instrInput.value);
+
+    let streamCompleted = false;          // wird true bei 'done'
 
     try {
       const resp = await fetch('/generate-stream', {
@@ -71,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const reader   = resp.body.getReader();
       const dec      = new TextDecoder();
       const esc      = (t) => `"${String(t).replace(/"/g, '""')}"`;
-      const csvRows  = [];
       let   table    = null;      // Referenz auf Live-Tabelle
 
       while (true) {
@@ -116,14 +137,17 @@ document.addEventListener('DOMContentLoaded', () => {
                  break;
                }
 
-               /* ---------------- Fehler -------------------------------- */
+               /* ---------------- Fehler vom Server ------------------- */
                case 'error':
                  progressDiv.innerHTML =
                    `<div class="alert alert-danger">${d.message}</div>`;
+                 enableDownload();                 // bereits generierte Karten sichern
+                 generateBtn.style.display = 'block';
                  break;
 
-               /* ---------------- Stream fertig ------------------------ */
+               /* ---------------- Stream vollständig ------------------ */
                case 'done':
+                 streamCompleted = true;
                  bar.style.width = '100%';
 
                  if (!table) {            // kein 'card'-Event empfangen
@@ -132,30 +156,29 @@ document.addEventListener('DOMContentLoaded', () => {
                    previewDiv.style.display = 'block';
                  }
 
-                 /* Download-Knopf aktivieren */
-                 downloadBtn.style.display = 'block';
-                 downloadBtn.onclick = () => {
-                   const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
-                   const url  = URL.createObjectURL(blob);
-                   const a    = document.createElement('a');
-                   a.href = url;
-                   a.download = file.name.replace(/\.pdf$/i, '.csv');
-                   document.body.appendChild(a);
-                   a.click();
-                   a.remove();
-                   URL.revokeObjectURL(url);
-                 };
-
+                 enableDownload();
                  progressDiv.innerHTML +=
                    '<div class="alert alert-success mt-2">Fertig – überprüfe die Ergebnisse!</div>';
-                 generateBtn.style.display = 'block';   // wieder anzeigen
+                 generateBtn.style.display = 'block';
                  break;
              }
            });
       }
+
+      /* ----------------------------------------------------------------
+       * 6) Falls Stream ohne 'done' endet (plötzlicher Abbruch)
+       * ---------------------------------------------------------------- */
+      if (!streamCompleted) {
+        progressDiv.innerHTML =
+          '<div class="alert alert-danger">Verbindung unterbrochen – Teil­ergebnis verfügbar.</div>';
+        enableDownload();
+        generateBtn.style.display = 'block';
+      }
     } catch (err) {
+      /* ---------------- Netzwerkfehler ------------------------------ */
       progressDiv.innerHTML =
         `<div class="alert alert-danger">Netzwerkfehler: ${err.message}</div>`;
+      enableDownload();
       generateBtn.style.display = 'block';
     }
   });
