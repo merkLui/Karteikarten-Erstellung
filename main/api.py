@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
 from fastapi.security.api_key import APIKeyHeader, APIKey
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 import os, uuid, tempfile, json
 from typing import List, Dict
@@ -14,8 +14,8 @@ from .ai import graph
 # API-Key
 # ---------------------------------------------------------------------------#
 default_api_key = os.getenv("API_KEY", "testkey")
-API_KEY_NAME = "X-API-Key"
-api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
+API_KEY_NAME    = "X-API-Key"
+api_key_header  = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
 
 async def get_api_key(api_key_header: str = Depends(api_key_header)) -> APIKey:
@@ -23,21 +23,17 @@ async def get_api_key(api_key_header: str = Depends(api_key_header)) -> APIKey:
         return api_key_header
     raise HTTPException(status_code=401, detail="Unauthorized")
 
-
 # ---------------------------------------------------------------------------#
-# FastAPI-Instanz
+# FastAPI-App
 # ---------------------------------------------------------------------------#
 app = FastAPI(
     title="Index Card Generator API",
-    version="1.3",
-    description=(
-        "Automatische Generierung von Frage-Antwort-Karteikarten aus PDF "
-        "mit optionalem Streaming-Fortschritt."
-    ),
+    version="1.4",
+    description="Generiert Karteikarten aus PDF mit Live-Progress.",
 )
 
 # ---------------------------------------------------------------------------#
-# Streaming-Endpoint – sendet Prozent­fortschritt
+# Streaming-Endpoint
 # ---------------------------------------------------------------------------#
 @app.post("/generate-stream", response_class=StreamingResponse, summary="Stream")
 async def generate_stream(
@@ -52,13 +48,13 @@ async def generate_stream(
         )
 
     pdf_bytes = await file.read()
-    suffix = os.path.splitext(file.filename or "")[1] or ".pdf"
+    suffix    = os.path.splitext(file.filename or "")[1] or ".pdf"
 
     async def card_generator():
-        # 0 % – sofort
+        # 0 % sofort
         yield json.dumps({"type": "progress", "percent": 0}) + "\n"
 
-        # Temp-Datei anlegen + chunk_file
+        # Temp-Datei + chunk_file
         tmp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
         tmp_pdf.write(pdf_bytes)
         tmp_pdf.close()
@@ -70,7 +66,7 @@ async def generate_stream(
             return
 
         total_pages = len(last_pages)
-        yield json.dumps({"type": "progress", "percent": 15}) + "\n"  # PDF fertig eingelesen
+        yield json.dumps({"type": "progress", "percent": 15}) + "\n"   # PDF eingelesen
 
         all_cards: List[Dict[str, str]] = []
         prev_len = 0
@@ -80,9 +76,9 @@ async def generate_stream(
                 first_pages, target_pages, last_pages, jump=5
             )
             state = {
-                "first_pages": first_pages,
-                "target_pages": target_pages,
-                "last_pages": last_pages,
+                "first_pages":     first_pages,
+                "target_pages":    target_pages,
+                "last_pages":      last_pages,
                 "user_instructions": user_instructions,
                 "all_index_cards": all_cards,
             }
@@ -92,25 +88,27 @@ async def generate_stream(
                 yield json.dumps({"type": "error", "message": str(e)}) + "\n"
                 return
 
-            all_cards = res["all_index_cards"]
-            first_pages, target_pages, last_pages = (
-                res["first_pages"],
-                res["target_pages"],
-                res["last_pages"],
-            )
+            all_cards   = res["all_index_cards"]
+            first_pages = res["first_pages"]
+            target_pages= res["target_pages"]
+            last_pages  = res["last_pages"]
 
-            # neue Karten ausgeben
+            # Neue Karten verarbeiten
             for c in all_cards[prev_len:]:
-                yield json.dumps(
-                    {
-                        "type": "card",
-                        "question": c.get("question", ""),
-                        "answer": c.get("answer", ""),
-                    }
-                ) + "\n"
+                q = c.get("question", "").strip()
+                a = c.get("answer",   "").rstrip()
+                s = c.get("source",   "").strip()
+
+                # Quelle anhängen wie früher
+                if s:
+                    if a and a[-1] not in ".!?":
+                        a += "."
+                    a += f"\n\nQuelle: {s}"
+
+                yield json.dumps({"type": "card", "question": q, "answer": a}) + "\n"
             prev_len = len(all_cards)
 
-            # Prozent berechnen (15 % Basis + 85 % Seiten)
+            # Prozent-Berechnung (15 % Basis + 85 % Seiten)
             done_pages = total_pages - len(last_pages)
             percent = 15 + int(done_pages / max(total_pages, 1) * 85)
             yield json.dumps({"type": "progress", "percent": percent}) + "\n"
@@ -119,14 +117,12 @@ async def generate_stream(
 
     return StreamingResponse(card_generator(), media_type="text/plain")
 
-
 # ---------------------------------------------------------------------------#
-# Health-Check & statisches Frontend
+# Health-Check & statische Dateien
 # ---------------------------------------------------------------------------#
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
-
 
 web_dir = os.path.join(os.path.dirname(__file__), "web")
 app.mount("/", StaticFiles(directory=web_dir, html=True), name="static")

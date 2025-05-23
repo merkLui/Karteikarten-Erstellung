@@ -19,6 +19,26 @@ class GraphState(TypedDict):
     last_pages: List[Document]
     user_instructions: str
 
+examples = r"""
+Hier sind einige Beispiele für Karteikarten, die du erstellen kannst:
+[
+    {
+        "question": "Was besagt die **relative Kaufkraftparität (PPP)** und wie lautet ihre Grundformel?",
+        "answer": "• Kernaussage: Die prozentuale Änderung des Wechselkurses entspricht näherungsweise der Differenz der Inflationsraten zwischen In- und Ausland.\n• Mathematische Darstellung (Display-Formel):\n\\[ \\frac{\\Delta w}{w} \\approx \\pi_{\\text{Inland}} - \\pi_{\\text{Ausland}} \\]\n• Interpretation: Liegt die inländische Inflation um beispielsweise \\(2\\,\\text{Prozentpunkte}\\) über der ausländischen, wertet die Inlandswährung langfristig um rund 2 % ab.",
+        "source": "S. 76, Abschnitt: 2.8 Kaufkraftparität"
+    },
+    {
+        "question": "Was versteht man unter den Grundoperationen der Mengenlehre und wie werden sie symbolisch dargestellt?",
+        "answer": "• Definition: Mengenoperationen sind Verfahren, um aus gegebenen Mengen neue Mengen zu bilden.\n• Schnittmenge: \\(A \\cap B = \\{x \\mid x \\in A \\text{ und } x \\in B\\}\\)\n• Vereinigung: \\(A \\cup B = \\{x \\mid x \\in A \\text{ oder } x \\in B\\}\\)\n• Differenz: \\(A \\setminus B = \\{x \\mid x \\in A \\text{ und } x \\notin B\\}\\)\n• Komplement: \\(A^c = \\{x \\mid x \\notin A\\}\\) (bezogen auf Grundmenge)",
+        "source": "S. 5, Abschnitt: 2.1 Mengenoperationen"
+    },
+    {
+        "question": "Wie berechnet man den Barwert einer zukünftigen Zahlung und welche Faktoren beeinflussen ihn?",
+        "answer": "• Definition: Der Barwert ist der heutige Wert einer zukünftigen Zahlung unter Berücksichtigung des Zinssatzes.\n• Formel: \\[ PV = \\frac{FV}{(1 + r)^n} \\]\n• Faktoren: Höhe der zukünftigen Zahlung (FV), Zinssatz (r) und Zeitraum (n)\n• Je höher der Zinssatz oder länger der Zeitraum, desto geringer der Barwert.",
+        "source": "S. 45, Abschnitte: 3.2 Barwertberechnung, 3.3 Einflussfaktoren"
+    }
+]
+"""
 # Prompt für die Erstellung von Karteikarten durch das LLM
 sys_prompt_index_card_generator = PromptTemplate.from_template("""
 Du bist ein Lernassistent, der Lernende bei der Prüfungsvorbereitung unterstützt.
@@ -49,16 +69,9 @@ Das Ziel ist ausschließlich mit diesen Karteikarten auf eine Prüfung zu lernen
 -   Mathematische Formeln dürfen und sollen sinnvoll eingesetzt werden. Nutze für **Blockformeln** das LaTeX-Display-Format `\\[ ... \\]` und für **Inline-Formeln** `\\( ... \\)`, da Anki (MathJax) diese Variante direkt rendert.
 -   **Frage:** Die Frage, die auf der Vorderseite der Karte steht.
 -   **Antwort:** Die Antwort, die auf der Rückseite der Karte steht.
--   **Quelle:** Die Quelle, aus der die Information stammt: S. <Seite>, <Abschnitt> - Die Quelle kann aus den Metadaten der Seiten entnommen werden. Wenn sich die Seitenzahl in den Metdaten zu der Seitenzahl, welche auf der aktuellen Seite steht, unterscheidet, begutachtest du gerade eine PDF welche zugeschnitten wurde. In diesem Fall nimmst du die Seitenzahl aus den Text der Seite, da diese die richtige Seitenzahl ist.
-Hier ein Beispiel einer optimal formatierten Karteikarte:
-    {{
-        "question": "Was besagt die **relative Kaufkraftparität (PPP)** und wie lautet ihre Grundformel?",
-        "answer":   "• Kernaussage: Die prozentuale Änderung des Wechselkurses entspricht näherungsweise der Differenz der Inflationsraten zwischen In- und Ausland.\n
-                    • Mathematische Darstellung (Display-Formel):\n
-                    \\[ \\frac{{\\Delta w}}{{w}} \\approx \\pi_{{\\text{{Inland}}}} - \\pi_{{\\text{{Ausland}}}} \\]\n
-                    • Interpretation: Liegt die inländische Inflation um beispielsweise \\(2\\,\\text{{Prozentpunkte}}\\) über der ausländischen, wertet die Inlandswährung langfristig um rund 2 % ab.\n\n"
-        "Quelle:    "S. 76, Abschnitt 2.8 Kaufkraftparität",
-    }}
+-   **Quelle:** Die Quelle, aus der die Information stammt: S. <Seite>, Abschnitt: <Abschnitt> - Die Quelle kann aus den Metadaten der Seiten entnommen werden. Wenn sich die Seitenzahl in den Metdaten zu der Seitenzahl, welche auf der aktuellen Seite steht, unterscheidet, begutachtest du gerade eine PDF welche zugeschnitten wurde. In diesem Fall nimmst du die Seitenzahl aus den Text der Seite, da diese die richtige Seitenzahl ist.
+Hier ein Beispiel einer optimal formatierten Karteikarte. Orientiere dich bitte daran:
+{examples}
 
 **BALANCE ZWISCHEN ATOMIZITÄT UND ZUSAMMENHANG (WICHTIG):**
 -   **Grundsatz:** Eine Kernidee pro Karte.
@@ -107,24 +120,18 @@ Du wirst am Ende die überprüften Karteikarten ausgeben, die du abnimmst. Du da
 
 Du prüfst auf 4 Punkte:
 1. **Formattierung:**
-- Ist der Text der Karteikarten im Plaintext-Format?
-- Sind mathematische Formeln korrekt mit \\[ ... \\] (Block) bzw. \\( ... \\) (Inline) gesetzt?
-- Sind die Karteikarten gut strukturiert und übersichtlich?
-- Hier ein Beispiel einer optimal formatierten Karteikarte:
-- Hier ein Beispiel einer optimal formatierten Karteikarte:
-    {{
-        "question": "Was besagt die **relative Kaufkraftparität (PPP)** und wie lautet ihre Grundformel?",
-        "answer":   "• Kernaussage: Die prozentuale Änderung des Wechselkurses entspricht näherungsweise der Differenz der Inflationsraten zwischen In- und Ausland.\n
-                    • Mathematische Darstellung (Display-Formel):\n
-                      \\[ \\frac{{\\Delta w}}{{w}} \\approx \\pi_{{\\text{{Inland}}}} - \\pi_{{\\text{{Ausland}}}} \\]\n
-                    • Interpretation: Liegt die inländische Inflation um beispielsweise \\(2\\,\\text{{Prozentpunkte}}\\) über der ausländischen, wertet die Inlandswährung langfristig um rund 2 % ab.\n\n"
-        "Quelle:    "S. 76, Abschnitt 2.8 Kaufkraftparität"
-    }}
+-   Das Format von Text ist Plaintext, ntuze nur in ausnahmefällen Zeichen wie: "↓" - Es sind nur sonderzeichen zur Strukturierung erlaubt, wie z.B. "•" oder "→".
+-   Mathematische Formeln dürfen und sollen sinnvoll eingesetzt werden. Nutze für **Blockformeln** das LaTeX-Display-Format `\\[ ... \\]` und für **Inline-Formeln** `\\( ... \\)`, da Anki (MathJax) diese Variante direkt rendert.
+-   **Frage:** Die Frage, die auf der Vorderseite der Karte steht.
+-   **Antwort:** Die Antwort, die auf der Rückseite der Karte steht.
+-   **Quelle:** Die Quelle, aus der die Information stammt: S. <Seite>, Abschnitt: <Abschnitt> - Die Quelle kann aus den Metadaten der Seiten entnommen werden. Wenn sich die Seitenzahl in den Metdaten zu der Seitenzahl, welche auf der aktuellen Seite steht, unterscheidet, begutachtest du gerade eine PDF welche zugeschnitten wurde. In diesem Fall nimmst du die Seitenzahl aus den Text der Seite, da diese die richtige Seitenzahl ist.
+Hier ein Beispiel einer optimal formatierten Karteikarte. Orientiere dich bitte daran:
+{examples}
 -> Falls du hierbei auf Probleme stößt, passe die Karteikarten an, sodass sie den Anforderungen entsprechen.
 
 2. **Inhalt:**
 - Ist der Inhalt der Karteikarten relevant oder handelt es sich bei den Zielseiten um unnötige nicht prüfungsrelevante Informationen, wie z.B. ein Inhaltsverzeichnis, Deckblatt oder ähnliches?
-- Macht es Sinn, die Kateikarten zu erstellen, also haben die Karteikarten einen Lerneffekt?
+- Macht es Sinn, die Karteikarten zu erstellen, also haben die Karteikarten einen Lerneffekt?
 - Wurde der gesamte Inhalt der Seiten abgedeckt?
 - Hierbei ist wichtig, dass der Lernassistennt, auch die Seiten davor und danach kennt. Diese Seiten könnten hilfreich seien, wenn man beispielsweise Karteikarten basierend auf Aufgaben erstellen will und die Lösung zu den Aufgaben auf einer späteren Seite steht. Hierbei hat dann der Lernassistent nicht Halloziniert, sondern er hat die Seiten davor und danach in den Karteikarten mit eingebaut.
 -> Falls du hierbei auf Probleme stößt, passe die Karteikarten möglichst geringfügig an, sodass sie den Anforderungen entsprechen.

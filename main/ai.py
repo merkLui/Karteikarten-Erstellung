@@ -6,7 +6,7 @@ from langchain_core.documents import Document
 from langgraph.graph import StateGraph, END, START
 import pydantic
 
-from .prompt import GraphState, sys_prompt_index_card_generator, sys_prompt_supervisor, IndexCard
+from .prompt import GraphState, sys_prompt_index_card_generator, sys_prompt_supervisor, IndexCard, examples
 from .llm import model
 
 def index_card_builder(state: GraphState):
@@ -28,6 +28,7 @@ def index_card_builder(state: GraphState):
         target_pages=target_pages,
         last_pages=limited_last_pages,
         user_instructions=user_instructions,
+        examples=examples,
     )
     class Output(TypedDict):
         index_cards: List[IndexCard] = pydantic.Field(description="Die Karteikarten, welche du generierst.")
@@ -58,6 +59,7 @@ def index_card_supervisor(state: GraphState):
         target_pages=target_pages,
         user_instructions=user_instructions,
         all_index_cards=all_index_cards,
+        examples=examples,
     )
     class Output(TypedDict):
         approved_index_cards: List[IndexCard] = pydantic.Field(description="Alle Karteikarten, welche in den Karteikartensatz übernommen werden sollen.")
