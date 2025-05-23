@@ -2,7 +2,6 @@
 
 from typing import List, TypedDict
 
-from langchain_core.documents import Document
 from langgraph.graph import StateGraph, END, START
 import pydantic
 

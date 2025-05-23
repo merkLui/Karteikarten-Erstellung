@@ -19,6 +19,7 @@ class GraphState(TypedDict):
     last_pages: List[Document]
     user_instructions: str
 
+# Beispiele für Karteikarten, die erstellt werden können
 examples = r"""
 Hier sind einige Beispiele für Karteikarten, die du erstellen kannst:
 [

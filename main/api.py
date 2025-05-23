@@ -4,7 +4,7 @@ from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
 from fastapi.security.api_key import APIKeyHeader, APIKey
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
-import os, uuid, tempfile, json
+import os, tempfile, json
 from typing import List, Dict
 
 from .chunk import chunk_file, jump_through_lists
@@ -99,7 +99,6 @@ async def generate_stream(
                 a = c.get("answer",   "").rstrip()
                 s = c.get("source",   "").strip()
 
-                # Quelle anhängen wie früher
                 if s:
                     if a and a[-1] not in ".!?":
                         a += "."
@@ -108,7 +107,7 @@ async def generate_stream(
                 yield json.dumps({"type": "card", "question": q, "answer": a}) + "\n"
             prev_len = len(all_cards)
 
-            # Prozent-Berechnung (15 % Basis + 85 % Seiten)
+            # Prozent-Berechnung (15 % Basis sobald die PDF eingelesen wurde + 85 % wird bei der Verarbeitung der Seiten aufgeteilt)
             done_pages = total_pages - len(last_pages)
             percent = 15 + int(done_pages / max(total_pages, 1) * 85)
             yield json.dumps({"type": "progress", "percent": percent}) + "\n"
