@@ -1,4 +1,4 @@
-// Frontend-Logik für Streaming-Progress, Vorschau & Download
+// Frontend-Logik für Streaming-Progress, Live-Vorschau & Download
 
 document.addEventListener('DOMContentLoaded', () => {
   const form        = document.getElementById('uploadForm');
@@ -13,7 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Validierung ----------------------------------------------------------
+    /* ------------------------------------------------------------------ *
+     * 1) Validierung
+     * ------------------------------------------------------------------ */
     const file   = pdfInput.files[0];
     const apiKey = apiKeyInput.value.trim();
     if (!file || !apiKey) {
@@ -22,16 +24,18 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // UI-Reset -------------------------------------------------------------
-    progressDiv.innerHTML = '';
+    /* ------------------------------------------------------------------ *
+     * 2) UI-Reset
+     * ------------------------------------------------------------------ */
+    progressDiv.innerHTML   = '';
     previewDiv.style.display = 'none';
-    previewDiv.innerHTML = '';
+    previewDiv.innerHTML    = '';
     downloadBtn.style.display = 'none';
+    generateBtn.style.display = 'none';           // Doppel-Submit verhindern
 
-    // Knopf ausblenden, um Doppel-Submit zu verhindern
-    generateBtn.style.display = 'none';
-
-    // Fortschrittsbalken ---------------------------------------------------
+    /* ------------------------------------------------------------------ *
+     * 3) Fortschrittsbalken
+     * ------------------------------------------------------------------ */
     progressDiv.innerHTML = `
       <div class="progress">
         <div id="progressBar"
@@ -40,7 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>`;
     const bar = document.getElementById('progressBar');
 
-    // Streaming-Request ----------------------------------------------------
+    /* ------------------------------------------------------------------ *
+     * 4) Streaming-Request
+     * ------------------------------------------------------------------ */
     const formData = new FormData();
     formData.append('file', file);
     formData.append('user_instructions', instrInput.value);
@@ -59,10 +65,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      const reader = resp.body.getReader();
-      const dec    = new TextDecoder();
-      const esc    = (t) => `"${String(t).replace(/"/g, '""')}"`;
-      const csvRows = [];
+      /* ----------------------------------------------------------------
+       * 5) Streaming-Auswertung
+       * ---------------------------------------------------------------- */
+      const reader   = resp.body.getReader();
+      const dec      = new TextDecoder();
+      const esc      = (t) => `"${String(t).replace(/"/g, '""')}"`;
+      const csvRows  = [];
+      let   table    = null;      // Referenz auf Live-Tabelle
 
       while (true) {
         const { value, done } = await reader.read();
@@ -75,53 +85,54 @@ document.addEventListener('DOMContentLoaded', () => {
              const d = JSON.parse(line);
 
              switch (d.type) {
+               /* ---------------- Fortschritt ------------------------- */
                case 'progress':
                  bar.style.width = `${d.percent}%`;
                  break;
 
-               case 'card':
+               /* ---------------- Eine Karteikarte -------------------- */
+               case 'card': {
                  csvRows.push([esc(d.question), esc(d.answer)].join(';'));
-                 break;
 
-               case 'error':
-                 progressDiv.innerHTML =
-                   `<div class="alert alert-danger">${d.message}</div>`;
-                 break;
-
-               case 'done':
-                 bar.style.width = '100%';
-
-                 // CSV als Tabelle anzeigen --------------------------------
-                 if (csvRows.length === 0) {
-                   previewDiv.innerHTML =
-                     '<div class="alert alert-info">Keine Karteikarten erzeugt.</div>';
-                 } else {
-                   const table = document.createElement('table');
+                 /* Tabelle bei erster Karte erzeugen */
+                 if (!table) {
+                   table = document.createElement('table');
                    table.className = 'table table-striped table-bordered';
-
-                   // Kopf
                    table.innerHTML = `
                      <thead>
                        <tr><th>Frage</th><th>Antwort</th></tr>
                      </thead>
                      <tbody></tbody>`;
-
-                   const tbody = table.querySelector('tbody');
-                   csvRows.forEach(r => {
-                     const [qRaw, aRaw] = r.split(';');
-                     const q = qRaw.replace(/^"|"$/g, '').replace(/""/g, '"');
-                     const a = aRaw.replace(/^"|"$/g, '').replace(/""/g, '"');
-                     const row = document.createElement('tr');
-                     row.innerHTML = `<td>${q}</td><td>${a.replace(/\n/g, '<br>')}</td>`;
-                     tbody.appendChild(row);
-                   });
-
                    previewDiv.appendChild(table);
+                   previewDiv.style.display = 'block';
                  }
 
-                 previewDiv.style.display = 'block';
+                 /* Zeile anhängen */
+                 const tbody = table.querySelector('tbody');
+                 const row   = document.createElement('tr');
+                 row.innerHTML =
+                   `<td>${d.question}</td><td>${d.answer.replace(/\n/g, '<br>')}</td>`;
+                 tbody.appendChild(row);
+                 break;
+               }
 
-                 // Download-Knopf vorbereiten ------------------------------
+               /* ---------------- Fehler -------------------------------- */
+               case 'error':
+                 progressDiv.innerHTML =
+                   `<div class="alert alert-danger">${d.message}</div>`;
+                 break;
+
+               /* ---------------- Stream fertig ------------------------ */
+               case 'done':
+                 bar.style.width = '100%';
+
+                 if (!table) {            // kein 'card'-Event empfangen
+                   previewDiv.innerHTML =
+                     '<div class="alert alert-info">Keine Karteikarten erzeugt.</div>';
+                   previewDiv.style.display = 'block';
+                 }
+
+                 /* Download-Knopf aktivieren */
                  downloadBtn.style.display = 'block';
                  downloadBtn.onclick = () => {
                    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
@@ -137,9 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                  progressDiv.innerHTML +=
                    '<div class="alert alert-success mt-2">Fertig – überprüfe die Ergebnisse!</div>';
-
-                 // Generieren-Knopf wieder anzeigen
-                 generateBtn.style.display = 'block';
+                 generateBtn.style.display = 'block';   // wieder anzeigen
                  break;
              }
            });
