@@ -123,5 +123,8 @@ async def generate_stream(
 def health_check():
     return {"status": "ok"}
 
+# ---------------------------------------------------------------------------#
+# Web-App an die API Mounten, damit beim start der API auch die Web-App startet
+# ---------------------------------------------------------------------------#
 web_dir = os.path.join(os.path.dirname(__file__), "web")
 app.mount("/", StaticFiles(directory=web_dir, html=True), name="static")
