@@ -1,6 +1,8 @@
 // Frontend-Logik für Streaming-Progress, Live-Vorschau & (Not-)Download
 
+// Warte bis das DOM komplett geladen ist, bevor UI-Logik initialisiert wird
 document.addEventListener('DOMContentLoaded', () => {
+  // Referenzen auf Formularelemente und Ausgabe-Container holen
   const form        = document.getElementById('uploadForm');
   const generateBtn = document.getElementById('generateBtn');
   const pdfInput    = document.getElementById('pdfFile');
@@ -10,11 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewDiv  = document.getElementById('csvPreview');
   const downloadBtn = document.getElementById('downloadBtn');
 
+  // Reagiere auf Formular-Submit für PDF-Upload und Karten-Generierung
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     /* ------------------------------------------------------------------ *
-     * 1) Validierung
+     * 1) Validierung des Dateiuploads und API-Keys
      * ------------------------------------------------------------------ */
     const file   = pdfInput.files[0];
     const apiKey = apiKeyInput.value.trim();
@@ -25,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ------------------------------------------------------------------ *
-     * 2) UI-Reset
+     * 2) UI-Reset: Entferne alte Fortschrittsanzeigen und Ergebnisse
      * ------------------------------------------------------------------ */
     progressDiv.innerHTML   = '';
     previewDiv.style.display = 'none';
@@ -34,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     generateBtn.style.display = 'none';           // Doppel-Submit verhindern
 
     /* ------------------------------------------------------------------ *
-     * Hilfsfunktion: Download-Knopf sichtbar machen
+     * Hilfsfunktion: Download-Knopf aktivieren, sobald CSV-Daten vorhanden sind
      * ------------------------------------------------------------------ */
     const csvRows  = [];                  // wird während des Streams befüllt
     function enableDownload() {
@@ -54,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ------------------------------------------------------------------ *
-     * 3) Fortschrittsbalken
+     * 3) Fortschrittsbalken anzeigen und initialisieren
      * ------------------------------------------------------------------ */
     progressDiv.innerHTML = `
       <div class="progress">
@@ -65,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bar = document.getElementById('progressBar');
 
     /* ------------------------------------------------------------------ *
-     * 4) Streaming-Request
+     * 4) Streaming-Request zur API absenden und Response-Stream abarbeiten
      * ------------------------------------------------------------------ */
     const formData = new FormData();
     formData.append('file', file);
@@ -88,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       /* ----------------------------------------------------------------
-       * 5) Streaming-Auswertung
+       * 5) Streaming-Auswertung: JSON-Nachrichten parsen und UI updaten
        * ---------------------------------------------------------------- */
       const reader   = resp.body.getReader();
       const dec      = new TextDecoder();
@@ -111,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  bar.style.width = `${d.percent}%`;
                  break;
 
-               /* ---------------- Eine Karteikarte -------------------- */
+               /* ---------------- Eine Karteikarte empfangen -------------------- */
                case 'card': {
                  csvRows.push([esc(d.question), esc(d.answer)].join(';'));
 
@@ -166,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       /* ----------------------------------------------------------------
-       * 6) Falls Stream ohne 'done' endet (plötzlicher Abbruch)
+       * 6) Fallback: Stream unterbrochen ohne 'done'
        * ---------------------------------------------------------------- */
       if (!streamCompleted) {
         progressDiv.innerHTML =

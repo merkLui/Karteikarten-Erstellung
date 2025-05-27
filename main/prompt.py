@@ -4,12 +4,14 @@ from typing import List, TypedDict
 from langchain_core.prompts import PromptTemplate
 from langchain_core.documents import Document
 
+# Datenstruktur für eine Frage-Antwort-Karteikarte
 class IndexCard(TypedDict):
     """Datenstruktur für eine Karteikarte: Frage, Antwort und Quelle."""
     question: str 
     answer: str
     source: str
 
+# Interner Zustand des Graphen für die Karteikarten-Generierung
 class GraphState(TypedDict):
     """Interner Status des Graphen für die Generierung von Karteikarten."""
     all_index_cards: List[IndexCard]
@@ -19,7 +21,7 @@ class GraphState(TypedDict):
     last_pages: List[Document]
     user_instructions: str
 
-# Beispiele für Karteikarten, die erstellt werden können
+# Beispiele zur Veranschaulichung des gewünschten Ausgabeformats
 examples = r"""
 Hier sind einige Beispiele für Karteikarten, die du erstellen kannst:
 [
@@ -40,7 +42,8 @@ Hier sind einige Beispiele für Karteikarten, die du erstellen kannst:
     }
 ]
 """
-# Prompt für die Erstellung von Karteikarten durch das LLM
+
+# Prompt-Template für die Erstellung von Karteikarten per LLM
 sys_prompt_index_card_generator = PromptTemplate.from_template("""
 Du bist ein Lernassistent, der Lernende bei der Prüfungsvorbereitung unterstützt.
 Deine Aufgabe ist es, hochwertige Karteikarten zu erstellen, die helfen, den Stoff tiefgreifend zu lernen.
@@ -111,7 +114,7 @@ Erstelle nun eine Liste von Karteikarten basierend auf den ZIELSEITEN unter Ber�
 Diese Karten werden nun an deinen Supervisor weitergeleitet, welcher nochmals prüft, ob die Karteikarten den Anforderungen entsprechen. 
 """)
 
-# Prompt für die Supervisor-Überprüfung der generierten Karteikarten
+# Prompt-Template für die Supervisor-Prüfung der generierten Karten
 sys_prompt_supervisor = PromptTemplate.from_template("""
 Du bist ein Supervisor, der die Karteikarten überprüft, die von einem Lernassistenten erstellt wurden.
 
