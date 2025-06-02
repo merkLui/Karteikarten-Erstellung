@@ -80,11 +80,7 @@ Eine schlanke Web-App, die aus deinen PDF-Unterlagen automatisch Frage-Antwort-K
 
     **Variante B – per `.env`-Datei (empfohlen)**
 
-    1.  Wechsle in das Hauptverzeichnis der App:
-        ```bash
-        cd ./main
-        ```
-    2.  `.env`-Datei anlegen:
+    1.  `.env`-Datei anlegen:
         *   **macOS / Linux:**
             ```bash
             touch .env
@@ -93,7 +89,7 @@ Eine schlanke Web-App, die aus deinen PDF-Unterlagen automatisch Frage-Antwort-K
             ```powershell
             New-Item -Name .env -ItemType File
             ```
-    3.  Inhalt der `.env`-Datei:
+    2.  Inhalt der `.env`-Datei:
         ```env
         API_KEY="DEIN-API-KEY"
         AZURE_OPENAI_ENDPOINT="DEIN-ENDPOINT"
