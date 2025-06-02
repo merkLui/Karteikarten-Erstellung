@@ -82,7 +82,7 @@ Eine schlanke Web-App, die aus deinen PDF-Unterlagen automatisch Frage-Antwort-K
 
     1.  Wechsle in das Hauptverzeichnis der App:
         ```bash
-        cd Karteikarten-Erstellung/main/
+        cd ./main
         ```
     2.  `.env`-Datei anlegen:
         *   **macOS / Linux:**
