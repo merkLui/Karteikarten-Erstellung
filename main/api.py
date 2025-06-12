@@ -3,9 +3,9 @@
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
 from fastapi.security.api_key import APIKeyHeader, APIKey
 from fastapi.responses import StreamingResponse
-from fastapi.staticfiles import StaticFiles
 import os, tempfile, json
 from typing import List, Dict
+import hashlib, hmac
 
 from .chunk import chunk_file, jump_through_lists
 from .ai import graph
@@ -20,7 +20,12 @@ api_key_header  = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
 # Überprüft den mitgesendeten API-Key und verweigert bei Abweichung den Zugriff
 async def get_api_key(api_key_header: str = Depends(api_key_header)) -> APIKey:
-    if api_key_header == default_api_key:
+    if not api_key_header:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    # Vergleiche gehashten Header mit gespeichertem Hash
+    api_key_hash = os.getenv("API_KEY_HASH", "")
+    provided_hash = hashlib.sha256(api_key_header.encode()).hexdigest()
+    if hmac.compare_digest(provided_hash, api_key_hash):
         return api_key_header
     raise HTTPException(status_code=401, detail="Unauthorized")
 
@@ -135,8 +140,3 @@ async def generate_stream(
 def health_check():
     return {"status": "ok"}
 
-# ---------------------------------------------------------------------------#
-# Web-App an die API Mounten, damit beim start der API auch die Web-App startet
-# ---------------------------------------------------------------------------#
-web_dir = os.path.join(os.path.dirname(__file__), "web")
-app.mount("/", StaticFiles(directory=web_dir, html=True), name="static")

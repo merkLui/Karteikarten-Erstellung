@@ -23,3 +23,5 @@ uvicorn
 
 # API-Client
 requests
+azure-functions
+azure-functions-python-asgi

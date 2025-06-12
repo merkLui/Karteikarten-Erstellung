@@ -1,10 +1,7 @@
 """Modul zum Zerlegen von PDF-Dokumenten in Seiten und Speichern als CSV."""
 
 import os
-import csv
 from typing import List
-
-from langchain_core.documents import Document
 
 
 from langchain_community.document_loaders.parsers import LLMImageBlobParser
@@ -27,20 +24,6 @@ def chunk_file(file_path):
     # Lade alle Seiten und Bildinhalte und gib sie als Liste von Document-Objekten zurück
     return loader.load()
 
-def load_docs(path: str) -> List[Document]:
-    """Lädt alle PDF-Dateien in einem Verzeichnis und zerlegt sie."""
-    # Durchsuche rekursiv das Verzeichnis, überspringe versteckte Dateien und lade nur echte PDF-Dateien
-    documents: List[Document] = []
-    for root, _, files in os.walk(path):
-        for fname in files:
-            # Nur echte PDF-Dateien lesen, versteckte Dateien überspringen
-            if fname.startswith(".") or not fname.lower().endswith(".pdf"):
-                continue
-            full_path = os.path.join(root, fname)
-            # Füge das zerlegte Dokument zur Ergebnisliste hinzu
-            documents.append(chunk_file(full_path))
-            
-    return documents
 
 def jump_through_lists(first_list: list, middle_list: list, last_list: list, jump: int):
     """
