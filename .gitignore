@@ -2,6 +2,8 @@
 # Ignore data directory
 data/
 
+local.settings.json
+
 # Common system files
 .DS_Store
 Thumbs.db
