@@ -3,6 +3,7 @@
 data/
 
 local.settings.json
+Schildkröten.pdf
 
 # Common system files
 .DS_Store
@@ -18,6 +19,7 @@ __pycache__/
 *$py.class
 .env
 .venv
+.venv_python311
 env/
 venv/
 ENV/

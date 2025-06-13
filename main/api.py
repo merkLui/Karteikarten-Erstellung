@@ -13,7 +13,6 @@ from .ai import graph
 # ---------------------------------------------------------------------------#
 # API-Key
 # ---------------------------------------------------------------------------#
-default_api_key = os.getenv("API_KEY", "testkey")
 API_KEY_NAME    = "X-API-Key"
 api_key_header  = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
