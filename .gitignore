@@ -16,12 +16,17 @@ __pycache__/
 *$py.class
 .env
 .venv
+.venv_python311
 env/
 venv/
 ENV/
+local.settings.json
 
 # IDE settings
 .idea/
 .vscode/
 *.swp
 *.swo
+
+# Test PDF
+Schildkröten.pdf
