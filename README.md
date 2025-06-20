@@ -1,7 +1,11 @@
-<!-- README – an aktuelle Version angepasst -->
-# 🧠 KI-gestützte Karteikarten-Erstellung
+# 🧠 CyberCards - KI-gestützte Karteikarten-Erstellung
 
-Eine schlanke Web-App, die aus deinen PDF-Unterlagen automatisch Frage-Antwort-Karteikarten erzeugt!
+Eine moderne Next.js Web-App, die aus deinen PDF-Unterlagen automatisch interaktive Frage-Antwort-Karteikarten erzeugt!
+
+## 🌐 Live Demo
+**➡️ [https://karteikarten-webapp-1750450317.azurewebsites.net](https://karteikarten-webapp-1750450317.azurewebsites.net)**
+
+*Probiere CyberCards direkt im Browser aus - keine Installation erforderlich!*
 
 ---
 
@@ -9,110 +13,95 @@ Eine schlanke Web-App, die aus deinen PDF-Unterlagen automatisch Frage-Antwort-K
 
 | Feature                 | Beschreibung                                                                                              |
 | :---------------------- | :-------------------------------------------------------------------------------------------------------- |
-| 📄 **PDF-Upload**       | Zieh deine Vorlesungs-, Skript- oder Foliensammlung per Drag-and-Drop ins Web-Interface.                  |
-| 🤖 **KI-Generierung**   | Erstellt automatisch Karteikarten mit Frage, Antwort, Quellenangabe und Formeln.                        |
-| 📊 **Live-Fortschritt & Vorschau** | Fortschrittsbalken + wachsende Tabelle zeigen dir schon während der Verarbeitung jede neue Karte. |
-| 💾 **CSV-Export**       | Lade die fertigen (oder bereits teilweise erzeugten) Karteikarten als CSV herunter und importiere sie in Anki & Co. |
-| 🚑 **Robust bei Abbruch** | Bricht die Verbindung bei 50 % ab, kannst du die bis dahin generierten Karten trotzdem speichern.        |
-| ⚡ **Schnelle Installation** | Keine Python-Vorkenntnisse nötig – ein Terminalfenster genügt.                                        |
+| 🌐 **Web-App**          | Moderne Next.js Anwendung - läuft direkt im Browser, keine Installation nötig                           |
+| 📄 **PDF-Upload**       | Zieh deine Vorlesungs-, Skript- oder Foliensammlung per Drag-and-Drop ins Web-Interface                 |
+| 🤖 **KI-Generierung**   | Erstellt automatisch Karteikarten mit Frage, Antwort, Quellenangabe und Formeln                        |
+| 📊 **Live-Fortschritt** | Fortschrittsbalken zeigt dir den aktuellen Verarbeitungsstand in Echtzeit                               |
+| 💾 **CSV-Export**       | Lade die fertigen Karteikarten als CSV herunter und importiere sie in Anki & Co                        |
+| � **Sicher & Privat**  | Deine PDFs werden sicher verarbeitet und nicht dauerhaft gespeichert                                    |
+| ⚡ **Sofort nutzbar**   | Keine Installation, keine Konfiguration - einfach die Website öffnen und loslegen                       |
 
 ---
 
 ## 🖥️ Voraussetzungen
 
-*   Windows, macOS oder Linux
-*   Internetverbindung (für die KI-Aufrufe)
+*   Ein moderner Webbrowser (Chrome, Firefox, Safari, Edge)
+*   Internetverbindung
 *   Eine PDF-Datei mit Lerninhalten
 
-> ℹ️ Alles Weitere geschieht in **einem** Terminalfenster – du musst weder Python-Code schreiben noch einen Web-Server konfigurieren.
+> ℹ️ **Keine Installation erforderlich!** CyberCards läuft komplett im Browser.
 
 ---
 
 ## 🚀 Schnellstart
 
+### Option 1: Web-App verwenden (Empfohlen)
+
+1. **Website öffnen**: [https://karteikarten-webapp-1750450317.azurewebsites.net](https://karteikarten-webapp-1750450317.azurewebsites.net)
+
+2. **PDF hochladen**: Ziehe deine PDF-Datei ins Upload-Feld
+
+3. **Generierung starten**: Klicke auf "Karteikarten generieren"
+
+4. **Fortschritt verfolgen**: Beobachte den Live-Fortschrittsbalken
+
+5. **CSV herunterladen**: Lade deine fertigen Karteikarten herunter
+
+### Option 2: Lokale Entwicklung
+
+Für Entwickler, die den Code lokal ausführen möchten:
+
 1.  **Verzeichnis wechseln**
 
     ```bash
-    cd PFAD/ZUM/GITHUBREPO/Karteikarten-Erstellung
+    cd PFAD/ZUM/GITHUBREPO/Karteikarten-Erstellung/karteikarten-webapp
     ```
 
-    Ersetze `PFAD/ZUM/GITHUBREPO/Karteikarten-Erstellung` durch deinen tatsächlichen Pfad.
-
-2.  **Virtuelle Umgebung erstellen (einmalig)**
+2.  **Dependencies installieren**
 
     ```bash
-    python -m venv .venv
+    npm install
     ```
 
-3.  **Umgebung aktivieren**
+3.  **Umgebungsvariablen setzen**
 
-    *   **Windows:**
-        ```bash
-        .venv\Scripts\activate
-        ```
-    *   **macOS / Linux:**
-        ```bash
-        source .venv/bin/activate
-        ```
+    Erstelle eine `.env.local` Datei:
+    ```env
+    API_KEY="DEIN-API-KEY"
+    AZURE_OPENAI_ENDPOINT="DEIN-ENDPOINT"
+    AZURE_OPENAI_API_KEY="DEIN-SCHLÜSSEL"
+    ```
 
-4.  **Abhängigkeiten installieren**
+4.  **Development Server starten**
 
     ```bash
-    pip install -r requirements.txt
+    npm run dev
     ```
 
-5.  **Umgebungsvariablen setzen**
+5.  **Web-Interface öffnen**
 
-    **Variante A – manuell im Terminal (bei jedem neuen Terminalfenster)**
+    Öffne [http://localhost:3000](http://localhost:3000) in deinem Browser.
 
-    *   **macOS / Linux:**
-        ```bash
-        export API_KEY="DEIN-API-KEY"
-        export AZURE_OPENAI_ENDPOINT="DEIN-ENDPOINT"
-        export AZURE_OPENAI_API_KEY="DEIN-SCHLÜSSEL"
-        ```
-    *   **Windows (PowerShell):**
-        ```powershell
-        setx API_KEY "DEIN-API-KEY"
-        setx AZURE_OPENAI_ENDPOINT "DEIN-ENDPOINT"
-        setx AZURE_OPENAI_API_KEY "DEIN-SCHLÜSSEL"
-        ```
+---
 
-    **Variante B – per `.env`-Datei (empfohlen)**
+## 🌐 Live Web-App nutzen
 
-    1.  `.env`-Datei anlegen:
-        *   **macOS / Linux:**
-            ```bash
-            touch .env
-            ```
-        *   **Windows (PowerShell):**
-            ```powershell
-            New-Item -Name .env -ItemType File
-            ```
-    2.  Inhalt der `.env`-Datei:
-        ```env
-        API_KEY="DEIN-API-KEY"
-        AZURE_OPENAI_ENDPOINT="DEIN-ENDPOINT"
-        AZURE_OPENAI_API_KEY="DEIN-SCHLÜSSEL"
-        ```
+**Einfach die Website besuchen: [https://karteikarten-webapp-1750450317.azurewebsites.net](https://karteikarten-webapp-1750450317.azurewebsites.net)**
 
-6.  **Anwendung starten**
+1.  **PDF hochladen**: Ziehe deine PDF-Datei ins Upload-Feld oder klicke zum Durchsuchen
+2.  **Generierung starten**: Klicke auf "Karteikarten generieren"
+3.  **Fortschritt verfolgen**: Der Fortschrittsbalken zeigt den aktuellen Status
+4.  **CSV herunterladen**: Sobald fertig, lade deine Karteikarten als CSV herunter
 
-    ```bash
-    uvicorn main.api:app --host 0.0.0.0 --port 8000 --reload
-    ```
+---
 
-7.  **Web-Interface öffnen**
+## 📱 Technologie
 
-    Öffne [http://localhost:8000/](http://localhost:8000/) in deinem Browser.
-
-    1.  API-Key eingeben
-    2.  PDF hochladen
-    3.  "Generieren" klicken – die Tabelle füllt sich live
-
-8.  **CSV herunterladen**
-
-    Über "CSV herunterladen" kannst du jederzeit das aktuelle Ergebnis sichern – auch wenn der Prozess vorzeitig abgebrochen ist.
+- **Frontend**: Next.js 15 mit TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui Components  
+- **Deployment**: Azure App Service
+- **KI**: Azure OpenAI Integration
+- **Upload**: Moderne File Upload mit Progress Tracking
 
 ---
 
@@ -137,11 +126,35 @@ So importierst du die CSV-Datei in Anki:
 
 ## 🆘 Hilfe & Support
 
-*   Prüfe, ob deine Umgebungsvariablen korrekt gesetzt sind (oder die `.env`-Datei gefunden wird).
-*   Vermeide passwortgeschützte oder beschädigte PDFs.
-*   Sieh bei Fehlern ins Terminal – dort erscheinen detaillierte Logs.
+### Web-App Probleme
+- **Upload funktioniert nicht**: Überprüfe deine Internetverbindung und probiere eine kleinere PDF-Datei
+- **Generierung stoppt**: Lade die Seite neu und versuche es erneut
+- **Leere Karteikarten**: Stelle sicher, dass deine PDF-Datei lesbaren Text enthält (keine gescannten Bilder)
+
+### Lokale Entwicklung
+- Überprüfe, ob deine Umgebungsvariablen in `.env.local` korrekt gesetzt sind
+- Vermeide passwortgeschützte oder beschädigte PDFs
+- Sieh bei Fehlern ins Terminal – dort erscheinen detaillierte Logs
+
+### Deployment
+Siehe [AZURE_DEPLOYMENT.md](AZURE_DEPLOYMENT.md) für Deployment-Anweisungen.
 
 ---
 
-© 2025 – KI-gestützte Karteikarten-Erstellung · Nutzung auf eigenes Risiko.
+## 📁 Projektstruktur
+
+```
+├── karteikarten-webapp/     # Next.js Web-App
+│   ├── app/                # App Router
+│   ├── components/         # React Components
+│   ├── public/            # Static Assets (Favicons)
+│   └── ...
+├── main/                  # Legacy Python Backend
+├── AZURE_DEPLOYMENT.md    # Deployment Guide
+└── quick-deploy.sh       # Deployment Script
+```
+
+---
+
+© 2025 – CyberCards · Powered by Next.js & Azure OpenAI
 

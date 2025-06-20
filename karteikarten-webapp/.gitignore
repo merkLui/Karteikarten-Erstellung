@@ -34,3 +34,7 @@ next-env.d.ts
 
 # Azure Static Web Apps
 .azure/
+.next/
+
+# Deployment
+deployment.zip
