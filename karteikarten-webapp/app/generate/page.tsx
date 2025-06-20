@@ -86,11 +86,17 @@ export default function GeneratePage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch('/api/auth/verify');
+        const response = await fetch('/api/auth/verify', {
+          method: 'GET',
+          credentials: 'include',
+          cache: 'no-cache'
+        });
+        
         if (!response.ok) {
           router.push('/login');
           return;
         }
+        
         setIsAuthenticated(true);
       } catch (error) {
         router.push('/login');

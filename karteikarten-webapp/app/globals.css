@@ -46,7 +46,7 @@
     @apply scroll-smooth;
   }
   body {
-    @apply bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 text-foreground min-h-screen;
+    @apply bg-gradient-to-br from-slate-900 via-slate-800/60 to-gray-900 text-foreground min-h-screen;
     background-attachment: fixed;
   }
 }
@@ -63,7 +63,7 @@
   
   .glassmorphism {
     backdrop-filter: blur(16px) saturate(180%);
-    background-color: rgba(17, 25, 40, 0.25);
+    background-color: rgba(15, 23, 42, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.125);
   }
   

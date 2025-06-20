@@ -59,42 +59,44 @@ export default function FlashcardDisplay({ cards, onExportCSV }: FlashcardDispla
               className="perspective-1000"
             >
               <motion.div
-                className="relative h-48 cursor-pointer preserve-3d"
+                className="relative min-h-48 cursor-pointer preserve-3d"
                 onClick={() => toggleCard(card.id)}
                 animate={{
                   rotateY: flippedCards.has(card.id) ? 180 : 0,
                 }}
                 transition={{ duration: 0.6, ease: 'easeInOut' }}
               >
-                {/* Front of card (Question) */}
-                <Card className="absolute inset-0 glassmorphism glow-border backface-hidden">
-                  <CardContent className="p-6 h-full flex flex-col justify-between">
-                    <div className="flex-1 flex items-center justify-center">
-                      <p className="text-white text-center text-lg leading-relaxed">
-                        {card.question}
-                      </p>
-                    </div>
-                    <div className="flex justify-between items-center mt-4">
-                      <span className="text-purple-400 text-sm">Question</span>
-                      <RotateCcw className="w-4 h-4 text-purple-400" />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Back of card (Answer) */}
-                <Card className="absolute inset-0 glassmorphism glow-border backface-hidden rotate-y-180">
-                  <CardContent className="p-6 h-full flex flex-col justify-between">
-                    <div className="flex-1 flex items-center justify-center">
-                      <p className="text-white text-center text-lg leading-relaxed">
-                        {card.answer}
-                      </p>
-                    </div>
-                    <div className="flex justify-between items-center mt-4">
-                      <span className="text-blue-400 text-sm">Answer</span>
-                      <RotateCcw className="w-4 h-4 text-blue-400" />
-                    </div>
-                  </CardContent>
-                </Card>
+                {!flippedCards.has(card.id) ? (
+                  /* Front of card (Question) */
+                  <Card className="glassmorphism glow-border backface-hidden min-h-48">
+                    <CardContent className="p-6 min-h-48 flex flex-col justify-between">
+                      <div className="flex-1 flex items-center justify-center py-4">
+                        <p className="text-white text-center text-lg leading-relaxed">
+                          {card.question}
+                        </p>
+                      </div>
+                      <div className="flex justify-between items-center mt-4">
+                        <span className="text-purple-400 text-sm">Question</span>
+                        <RotateCcw className="w-4 h-4 text-purple-400" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  /* Back of card (Answer) */
+                  <Card className="glassmorphism glow-border backface-hidden min-h-48" style={{ transform: 'rotateY(180deg)' }}>
+                    <CardContent className="p-6 min-h-48 flex flex-col justify-between">
+                      <div className="flex-1 flex items-center justify-center py-4">
+                        <p className="text-white text-center text-lg leading-relaxed">
+                          {card.answer}
+                        </p>
+                      </div>
+                      <div className="flex justify-between items-center mt-4">
+                        <span className="text-blue-400 text-sm">Answer</span>
+                        <RotateCcw className="w-4 h-4 text-blue-400" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </motion.div>
             </motion.div>
           ))}

@@ -44,20 +44,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center">
+      <Card className="w-full max-w-md glassmorphism glow-border">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">
+          <CardTitle className="text-2xl text-center text-white">
             Karteikarten Generator
           </CardTitle>
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-sm text-gray-300 text-center">
             Melden Sie sich an, um fortzufahren
           </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Benutzername</Label>
+              <Label htmlFor="username" className="text-white">Benutzername</Label>
               <Input
                 id="username"
                 type="text"
@@ -68,7 +68,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Passwort</Label>
+              <Label htmlFor="password" className="text-white">Passwort</Label>
               <Input
                 id="password"
                 type="password"

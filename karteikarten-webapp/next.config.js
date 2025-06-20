@@ -4,7 +4,6 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: { unoptimized: true },
-  // Removed output: 'export' to allow dynamic API routes
   async headers() {
     return [
       {

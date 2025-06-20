@@ -6,11 +6,6 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/generate/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/generate/page.js"
-    ],
     "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -20,6 +15,11 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/auth/verify/route.js"
+    ],
+    "/generate/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/generate/page.js"
     ],
     "/api/auth/logout/route": [
       "static/chunks/webpack.js",
@@ -35,11 +35,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/auth/login/route.js"
-    ],
-    "/api/generate-stream/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/generate-stream/route.js"
     ]
   }
 }
