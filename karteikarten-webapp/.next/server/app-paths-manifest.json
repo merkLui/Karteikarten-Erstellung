@@ -1,0 +1,8 @@
+{
+  "/api/auth/verify/route": "app/api/auth/verify/route.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/api/generate-stream/route": "app/api/generate-stream/route.js",
+  "/page": "app/page.js",
+  "/login/page": "app/login/page.js",
+  "/generate/page": "app/generate/page.js"
+}

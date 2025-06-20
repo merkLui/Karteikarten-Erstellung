@@ -21,6 +21,7 @@ env/
 venv/
 ENV/
 local.settings.json
+karteikarten-webapp/.env.local
 
 # IDE settings
 .idea/

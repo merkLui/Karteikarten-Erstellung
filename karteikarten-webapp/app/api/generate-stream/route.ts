@@ -1,17 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyAuth } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication first
+    const user = await verifyAuth();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const userInstructions = formData.get('userInstructions') as string;
 
+    // Input validation
     if (!file) {
       return NextResponse.json(
         { error: 'No file provided' },
         { status: 400 }
+      );
+    }
+
+    // File size validation (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: 'File too large. Maximum size is 10MB' },
+        { status: 400 }
+      );
+    }
+
+    // File type validation
+    if (file.type !== 'application/pdf') {
+      return NextResponse.json(
+        { error: 'Only PDF files are allowed' },
+        { status: 400 }
+      );
+    }
+
+    // User instructions validation
+    if (userInstructions && userInstructions.length > 500) {
+      return NextResponse.json(
+        { error: 'Instructions too long. Maximum 500 characters' },
+        { status: 400 }
+      );
+    }
+
+    // API key validation
+    if (!process.env.API_KEY) {
+      console.error('API_KEY not configured');
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
       );
     }
 
@@ -23,12 +66,6 @@ export async function POST(request: NextRequest) {
       apiFormData.append('user_instructions', userInstructions);
     }
 
-    // Debug logging
-    console.log('API_KEY available:', !!process.env.API_KEY);
-    console.log('API_KEY length:', process.env.API_KEY?.length);
-    console.log('API_KEY first/last chars:', process.env.API_KEY ? `${process.env.API_KEY.slice(0, 3)}...${process.env.API_KEY.slice(-3)}` : 'undefined');
-    console.log('API_URL:', process.env.NEXT_PUBLIC_API_URL);
-    
     // Call external API
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/generate-stream`,
@@ -72,6 +109,11 @@ export async function POST(request: NextRequest) {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
         'Transfer-Encoding': 'chunked',
+        // Security headers
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+        'X-XSS-Protection': '1; mode=block',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
       },
     });
   } catch (error) {

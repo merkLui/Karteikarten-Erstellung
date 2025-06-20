@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft, Sparkles, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { Flashcard, StreamResponse } from '@/types/api';
 import FileUpload from '@/components/FileUpload';
 import ProgressDisplay from '@/components/ProgressDisplay';
@@ -21,7 +22,10 @@ export default function GeneratePage() {
   const [progress, setProgress] = useState(0);
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // Process stream data - defined before useEffect to avoid hook order issues
   const processStream = useCallback(async (response: Response) => {
     const reader = response.body?.getReader();
     const decoder = new TextDecoder();
@@ -78,6 +82,35 @@ export default function GeneratePage() {
     }
   }, []);
 
+  // Check authentication on component mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/verify');
+        if (!response.ok) {
+          router.push('/login');
+          return;
+        }
+        setIsAuthenticated(true);
+      } catch (error) {
+        router.push('/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   const handleGenerate = async () => {
     if (!selectedFile) return;
 
@@ -129,6 +162,20 @@ export default function GeneratePage() {
     link.click();
   };
 
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen relative">
       <ParticleBackground />
@@ -139,7 +186,7 @@ export default function GeneratePage() {
         animate={{ opacity: 1, y: 0 }}
         className="relative z-10 p-6"
       >
-        <nav className="max-w-7xl mx-auto">
+        <nav className="max-w-7xl mx-auto flex justify-between items-center">
           <motion.button
             onClick={() => router.push('/')}
             className="flex items-center space-x-2 text-purple-400 hover:text-purple-300 transition-colors group"
@@ -148,104 +195,114 @@ export default function GeneratePage() {
             <ArrowLeft className="w-5 h-5" />
             <span>Back to Home</span>
           </motion.button>
+          
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            size="sm"
+            className="flex items-center space-x-2 text-purple-400 border-purple-400 hover:bg-purple-400 hover:text-white"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Logout</span>
+          </Button>
         </nav>
       </motion.header>
 
       {/* Main Content */}
-      <motion.main
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="relative z-10 px-6 py-12 space-y-12"
-      >
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-bold mb-4"
-          >
-            <span className="glow-text">Generate</span> Flashcards
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-xl text-gray-300 mb-8"
-          >
-            Upload your PDF and let AI create intelligent flashcards for you
-          </motion.p>
-        </div>
-
-        {/* File Upload Section */}
-        <motion.section
-          initial={{ opacity: 0, y: 30 }}
+      <div className="relative z-10 max-w-4xl mx-auto px-6 pb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          className="text-center mb-12"
         >
-          <FileUpload
-            onFileSelect={setSelectedFile}
-            selectedFile={selectedFile}
-            disabled={isProcessing}
-          />
-        </motion.section>
-
-        {/* Instructions Section */}
-        <motion.section
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="max-w-2xl mx-auto space-y-4"
-        >
-          <Label htmlFor="instructions" className="text-lg font-medium text-white">
-            Custom Instructions (Optional)
-          </Label>
-          <Textarea
-            id="instructions"
-            value={userInstructions}
-            onChange={(e) => setUserInstructions(e.target.value)}
-            placeholder="e.g., Focus on key definitions, create multiple choice questions, emphasize historical dates..."
-            className="min-h-24 glassmorphism border-gray-600 text-white placeholder-gray-400 resize-none focus:glow-border"
-            disabled={isProcessing}
-          />
-          <p className="text-sm text-gray-400">
-            Provide specific instructions to customize your flashcards
+          <h1 className="text-5xl font-bold mb-4">
+            <span className="glow-text">AI Flashcard</span>
+            <br />
+            <span className="text-white">Generator</span>
+          </h1>
+          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            Upload your PDF and let AI create intelligent flashcards in real-time
           </p>
-        </motion.section>
+        </motion.div>
 
-        {/* Generate Button */}
-        <motion.section
+        {/* Upload Section */}
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="text-center"
+          transition={{ delay: 0.2 }}
+          className="mb-8"
         >
-          <GlowButton
-            onClick={handleGenerate}
-            disabled={!selectedFile || isProcessing}
-            className="text-xl px-12 py-6"
-          >
-            <Sparkles className="w-6 h-6 mr-3" />
-            {isProcessing ? 'Processing...' : 'Generate Flashcards'}
-          </GlowButton>
-        </motion.section>
+          <div className="glassmorphism glow-border rounded-2xl p-8">
+            <FileUpload
+              onFileSelect={setSelectedFile}
+              selectedFile={selectedFile}
+              disabled={isProcessing}
+            />
+            
+            <div className="mt-6">
+              <Label htmlFor="instructions" className="text-white mb-2 block">
+                Custom Instructions (Optional)
+              </Label>
+              <Textarea
+                id="instructions"
+                placeholder="e.g., Focus on key concepts, create multiple choice questions, include diagrams..."
+                value={userInstructions}
+                onChange={(e) => setUserInstructions(e.target.value)}
+                disabled={isProcessing}
+                className="min-h-[100px] bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+              />
+            </div>
+
+            <div className="mt-8 flex justify-center">
+              <GlowButton
+                onClick={handleGenerate}
+                disabled={!selectedFile || isProcessing}
+                className="group flex items-center space-x-2"
+              >
+                <Sparkles className="w-5 h-5" />
+                <span>{isProcessing ? 'Generating...' : 'Generate Flashcards'}</span>
+              </GlowButton>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Progress Display */}
-        <ProgressDisplay progress={progress} isProcessing={isProcessing} />
+        {(isProcessing || progress > 0) && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-8"
+          >
+            <ProgressDisplay progress={progress} isProcessing={isProcessing} />
+          </motion.div>
+        )}
 
         {/* Error Display */}
         {error && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="max-w-2xl mx-auto p-4 bg-red-900/20 border border-red-500/50 rounded-xl text-red-400 text-center"
+            className="mb-8 p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300"
           >
-            <p className="font-medium">Error: {error}</p>
+            <h3 className="font-semibold mb-2">Error</h3>
+            <p>{error}</p>
           </motion.div>
         )}
 
         {/* Flashcards Display */}
-        <FlashcardDisplay cards={flashcards} onExportCSV={exportToCSV} />
-      </motion.main>
+        {flashcards.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <h2 className="text-3xl font-bold text-white">
+              Generated Flashcards ({flashcards.length})
+            </h2>
+            <FlashcardDisplay cards={flashcards} onExportCSV={exportToCSV} />
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }

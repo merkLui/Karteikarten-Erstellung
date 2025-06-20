@@ -3,11 +3,39 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Zap, Brain, Download, Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import ParticleBackground from '@/components/ParticleBackground';
 import GlowButton from '@/components/GlowButton';
 
 export default function HomePage() {
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/verify');
+        if (response.ok) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const handleGetStarted = () => {
+    if (isAuthenticated) {
+      router.push('/generate');
+    } else {
+      router.push('/login');
+    }
+  };
 
   const features = [
     {
@@ -104,11 +132,11 @@ export default function HomePage() {
             className="flex flex-col sm:flex-row gap-6 justify-center items-center"
           >
             <GlowButton
-              onClick={() => router.push('/generate')}
+              onClick={handleGetStarted}
               className="group"
             >
               <span className="flex items-center">
-                Start Generating
+                {isAuthenticated === null ? 'Loading...' : isAuthenticated ? 'Go to Generator' : 'Login to Start'}
                 <motion.div
                   className="ml-2"
                   animate={{ x: [0, 5, 0] }}
@@ -195,10 +223,10 @@ export default function HomePage() {
               Join thousands of students who have already transformed their learning experience
             </p>
             <GlowButton
-              onClick={() => router.push('/generate')}
+              onClick={handleGetStarted}
               className="text-xl px-12 py-6"
             >
-              Get Started Now
+              {isAuthenticated === null ? 'Loading...' : isAuthenticated ? 'Go to Generator' : 'Login to Get Started'}
             </GlowButton>
           </motion.div>
         </div>
