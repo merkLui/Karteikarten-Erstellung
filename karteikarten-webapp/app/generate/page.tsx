@@ -152,14 +152,10 @@ export default function GeneratePage() {
   const exportToCSV = () => {
     if (flashcards.length === 0) return;
 
-    const csvContent = [
-      ['Question', 'Answer', 'Created'],
-      ...flashcards.map(card => [
-        card.question,
-        card.answer,
-        card.createdAt.toLocaleDateString()
-      ])
-    ].map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
+    const csvContent = flashcards.map(card => [
+      card.question,
+      card.answer
+    ]).map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
